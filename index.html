@@ -6,8 +6,8 @@
   <title>Link Genie - Tracking Link Builder</title>
   <style>
     :root {
-      --primary: #4f46e5;
-      --primary-hover: #4338ca;
+      --primary: #0096FF;
+      --primary-hover: #007acc;
       --secondary: #f3f4f6;
       --secondary-hover: #e5e7eb;
       --text: #1f2937;
@@ -29,8 +29,8 @@
     }
 
     .dark-mode {
-      --primary: #6366f1;
-      --primary-hover: #818cf8;
+      --primary: #0096FF;
+      --primary-hover: #33a6ff;
       --secondary: #374151;
       --secondary-hover: #4b5563;
       --text: #f9fafb;
@@ -246,7 +246,7 @@
       background-color: var(--secondary);
       border-radius: 0.375rem;
       padding: 1rem;
-      margin-top: 1rem;
+      margin-bottom: 1.5rem;
       overflow-x: auto;
       font-family: monospace;
       font-size: 0.875rem;
@@ -436,6 +436,58 @@
       background-color: var(--secondary);
     }
 
+    .parameter-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+    
+    .parameter-option {
+      border: 1px solid var(--border);
+      border-radius: 0.375rem;
+      padding: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .parameter-option:hover {
+      border-color: var(--primary);
+      background-color: rgba(0, 150, 255, 0.05);
+    }
+    
+    .parameter-option-name {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      color: var(--primary);
+    }
+    
+    .parameter-option-desc {
+      font-size: 0.75rem;
+      color: var(--text-light);
+    }
+    
+    .parameter-selector {
+      background: var(--background);
+      border: 1px solid var(--border);
+      border-radius: 0.375rem;
+      padding: 1rem;
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+    }
+    
+    .parameter-search {
+      margin-bottom: 1rem;
+    }
+    
+    .grid-2-columns {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
     @media (max-width: 768px) {
       .form-row {
         flex-direction: column;
@@ -454,6 +506,14 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 0.5rem;
+      }
+      
+      .grid-2-columns {
+        grid-template-columns: 1fr;
+      }
+      
+      .parameter-grid {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -521,6 +581,12 @@
     
     <div id="builder" class="tab-content active">
       <div class="card">
+        <!-- Link Preview (moved to top) -->
+        <div class="form-group">
+          <label>Link Preview</label>
+          <div class="link-preview" id="linkPreview"></div>
+        </div>
+        
         <div class="form-group">
           <div class="platform-toggle">
             <button class="platform-btn active" data-platform="Appsflyer">Appsflyer</button>
@@ -548,8 +614,19 @@
         </div>
         
         <div class="form-group">
-          <label for="rawLink">Paste tracking link</label>
+          <label for="rawLink">Paste tracking link (optional)</label>
           <textarea id="rawLink" placeholder="https://app.appsflyer.com/com.example.app?pid=source&af_siteid=123"></textarea>
+        </div>
+        
+        <!-- Build from scratch option -->
+        <div class="form-group">
+          <button id="buildFromScratchBtn" class="btn-primary">Build Link from Scratch</button>
+          <div id="parameterSelector" class="parameter-selector" style="display: none;">
+            <div class="parameter-search">
+              <input type="text" id="searchParameters" placeholder="Search parameters...">
+            </div>
+            <div class="parameter-grid" id="parameterOptions"></div>
+          </div>
         </div>
         
         <!-- Adjust Settings (hidden by default) -->
@@ -596,7 +673,7 @@
           </div>
         </div>
         
-        <!-- Parameters Section -->
+        <!-- Parameters Section with 2 column layout -->
         <div class="form-group">
           <div class="form-header">
             <label>Parameters</label>
@@ -627,12 +704,6 @@
             </div>
             <div id="eventTokensList"></div>
           </div>
-        </div>
-        
-        <!-- Link Preview -->
-        <div class="form-group">
-          <label>Link Preview</label>
-          <div class="link-preview" id="linkPreview"></div>
         </div>
         
         <!-- Link Name and Save -->
@@ -687,6 +758,95 @@
   </div>
 
   <script>
+    // AppsFlyer parameters
+    const appsflyerParameters = [
+      { key: "pid", description: "Uniquely identifies an AppsFlyer integrated partner." },
+      { key: "c", description: "Provided by the advertiser or the publisher." },
+      { key: "af_prt", description: "Agency Account Name for agency attribution." },
+      { key: "af_mp", description: "Enable postbacks to publisher marketing partners." },
+      { key: "clickid", description: "Ad network unique click identifier." },
+      { key: "af_siteid", description: "Unique ID identifying the publisher." },
+      { key: "af_sub_siteid", description: "Ad sub-network/Publisher ID." },
+      { key: "af_c_id", description: "Provided by the advertiser/publisher." },
+      { key: "af_adset", description: "Intermediate campaign level." },
+      { key: "af_adset_id", description: "Provided by the advertiser/publisher." },
+      { key: "af_ad", description: "Ad Name provided by the advertiser/publisher." },
+      { key: "af_ad_id", description: "Provided by the advertiser/publisher." },
+      { key: "af_ad_type", description: "Describes the ad's type." },
+      { key: "af_ad_format", description: "Format of the advertisement." },
+      { key: "af_click_lookback", description: "Lookback window for click attribution." },
+      { key: "af_viewthrough_lookback", description: "View-through lookback window." },
+      { key: "af_channel", description: "Media source channel." },
+      { key: "af_keywords", description: "Used for text-targeted campaigns." },
+      { key: "af_cost_model", description: "Cost model for attribution." },
+      { key: "af_cost_currency", description: "Currency code for cost value." },
+      { key: "af_cost_value", description: "Monetary value of cost." },
+      { key: "af_sub1", description: "Custom optional advertiser parameter 1." },
+      { key: "af_sub2", description: "Custom optional advertiser parameter 2." },
+      { key: "af_sub3", description: "Custom optional advertiser parameter 3." },
+      { key: "af_sub4", description: "Custom optional advertiser parameter 4." },
+      { key: "af_sub5", description: "Custom optional advertiser parameter 5." },
+      { key: "af_r", description: "Redirect users to specified URL." },
+      { key: "af_web_dp", description: "Redirect desktop users to different web page." },
+      { key: "af_dp", description: "URI scheme fallback for deep linking." },
+      { key: "af_force_deeplink", description: "Force deep linking to specified activity." },
+      { key: "af_ref", description: "Unique referrer for S2S click attribution." },
+      { key: "is_incentivized", description: "Boolean for campaign type." },
+      { key: "af_param_forwarding", description: "Control if link parameters are forwarded." },
+      { key: "af_base_params_forward", description: "Controls forwarding of PID and C." },
+      { key: "af_partner_account_id", description: "Advertiser's partner account ID." },
+      { key: "redirect", description: "Marks link as S2S click (no redirect)." },
+      { key: "af_ua", description: "Device User-Agent string." },
+      { key: "af_ip", description: "Device IP address." },
+      { key: "af_os_version", description: "Device OS version." },
+      { key: "af_model", description: "Device model name." },
+      { key: "af_media_type", description: "Placement of ad (app/web)." },
+      { key: "deep_link_sub1", description: "Additional deep link value 1." },
+      { key: "deep_link_sub2", description: "Additional deep link value 2." },
+      { key: "deep_link_sub3", description: "Additional deep link value 3." },
+      { key: "deep_link_sub4", description: "Additional deep link value 4." },
+      { key: "deep_link_sub5", description: "Additional deep link value 5." },
+      { key: "deep_link_value", description: "Targeted in-app content." },
+      { key: "af_og_title", description: "Open Graph title for social preview." },
+      { key: "af_og_description", description: "Open Graph description." },
+      { key: "af_og_image", description: "Open Graph image for social preview." },
+      { key: "is_retargeting", description: "Marks campaign as retargeting." },
+      { key: "af_reengagement_window", description: "Retargeting attribution window." },
+      { key: "af_video_total_length", description: "Duration of video ad." },
+      { key: "af_video_played_length", description: "Viewed duration of video." },
+      { key: "af_playable_played_length", description: "Played duration of playable." },
+      { key: "af_ad_time_viewed", description: "Ad screen visibility duration." },
+      { key: "af_ad_displayed_percent", description: "Percent of ad visible on screen." },
+      { key: "af_audio_total_length", description: "Duration of audio ad." },
+      { key: "af_audio_played_length", description: "Heard duration of audio ad." },
+      { key: "advertising_id", description: "Google Advertising ID." },
+      { key: "sha1_advertising_id", description: "SHA1 hash of Advertising ID." },
+      { key: "md5_advertising_id", description: "MD5 hash of Advertising ID." },
+      { key: "android_id", description: "Device Android ID." },
+      { key: "sha1_android_id", description: "SHA1 hash of Android ID." },
+      { key: "md5_android_id", description: "MD5 hash of Android ID." },
+      { key: "imei", description: "Device IMEI." },
+      { key: "sha1_imei", description: "SHA1 hash of IMEI." },
+      { key: "md5_imei", description: "MD5 hash of IMEI." },
+      { key: "oaid", description: "Open Anonymous Device ID." },
+      { key: "sha1_oaid", description: "SHA1 hash of OAID." },
+      { key: "md5_oaid", description: "MD5 hash of OAID." },
+      { key: "af_android_url", description: "Redirect Android users to custom store." },
+      { key: "sha1_el", description: "Hashed email for desktop to mobile." },
+      { key: "fire_advertising_id", description: "Amazon Fire Advertising ID." },
+      { key: "af_android_store_csl", description: "Custom Google Play store listing." },
+      { key: "idfa", description: "iOS Identifier for Advertisers." },
+      { key: "idfv", description: "iOS Identifier for Vendors." },
+      { key: "af_ios_url", description: "Redirect iOS users to alternate URL." },
+      { key: "af_ios_store_cpp", description: "iOS custom product page ID." },
+      { key: "sha1_idfa", description: "SHA1 hash of IDFA." },
+      { key: "sha1_idfv", description: "SHA1 hash of IDFV." },
+      { key: "mac", description: "Device MAC address." },
+      { key: "md5_idfa", description: "MD5 hash of IDFA." },
+      { key: "md5_idfv", description: "MD5 hash of IDFV." },
+      { key: "sha1_mac", description: "SHA1 hash of MAC address." },
+    ];
+    
     // State management
     const state = {
       platform: "Appsflyer",
@@ -701,6 +861,7 @@
       finalLink: "",
       linkName: "",
       links: [],
+      linkCounter: 1, // For automatic link numbering
       theme: "light"
     };
 
@@ -734,7 +895,11 @@
       closeModal: document.getElementById('closeModal'),
       cancelClear: document.getElementById('cancelClear'),
       confirmClear: document.getElementById('confirmClear'),
-      themeToggle: document.getElementById('themeToggle')
+      themeToggle: document.getElementById('themeToggle'),
+      buildFromScratchBtn: document.getElementById('buildFromScratchBtn'),
+      parameterSelector: document.getElementById('parameterSelector'),
+      searchParameters: document.getElementById('searchParameters'),
+      parameterOptions: document.getElementById('parameterOptions')
     };
 
     // Initialize app
@@ -745,7 +910,74 @@
       renderParametersList();
       loadSampleLink();
       renderLinksHistory();
+      populateParameterOptions();
       setTheme(state.theme);
+      
+      // Initialize link counter based on existing links
+      if (state.links.length > 0) {
+        const numbers = state.links
+          .map(link => {
+            const match = link.name.match(/^#(\d+)/);
+            return match ? parseInt(match[1]) : 0;
+          })
+          .filter(num => !isNaN(num));
+          
+        state.linkCounter = numbers.length > 0 ? Math.max(...numbers) + 1 : 1;
+      }
+    }
+    
+    // Populate parameter options
+    function populateParameterOptions() {
+      elements.parameterOptions.innerHTML = '';
+      
+      appsflyerParameters.forEach(param => {
+        const paramElement = document.createElement('div');
+        paramElement.className = 'parameter-option';
+        paramElement.dataset.key = param.key;
+        paramElement.innerHTML = `
+          <div class="parameter-option-name">${param.key}</div>
+          <div class="parameter-option-desc">${param.description}</div>
+        `;
+        
+        paramElement.addEventListener('click', () => {
+          addParameter(param.key, '');
+          elements.parameterSelector.style.display = 'none';
+        });
+        
+        elements.parameterOptions.appendChild(paramElement);
+      });
+      
+      // Add custom parameter option
+      const customParam = document.createElement('div');
+      customParam.className = 'parameter-option';
+      customParam.innerHTML = `
+        <div class="parameter-option-name">Custom Parameter</div>
+        <div class="parameter-option-desc">Add your own custom parameter</div>
+      `;
+      
+      customParam.addEventListener('click', () => {
+        addParameter('', '');
+        elements.parameterSelector.style.display = 'none';
+      });
+      
+      elements.parameterOptions.appendChild(customParam);
+    }
+    
+    // Filter parameter options
+    function filterParameterOptions(query) {
+      const options = elements.parameterOptions.querySelectorAll('.parameter-option');
+      const lowerQuery = query.toLowerCase();
+      
+      options.forEach(option => {
+        const key = option.querySelector('.parameter-option-name').textContent.toLowerCase();
+        const desc = option.querySelector('.parameter-option-desc').textContent.toLowerCase();
+        
+        if (key.includes(lowerQuery) || desc.includes(lowerQuery) || key === 'custom parameter') {
+          option.style.display = 'block';
+        } else {
+          option.style.display = 'none';
+        }
+      });
     }
     
     // Setup event listeners
@@ -758,6 +990,9 @@
           state.platform = btn.dataset.platform;
           updateUIBasedOnPlatform();
           updateFinalLink();
+          
+          // Auto-generate link name when platform changes
+          generateLinkName();
         });
       });
       
@@ -768,6 +1003,9 @@
           btn.classList.add('active');
           state.linkType = btn.dataset.type;
           updateFinalLink();
+          
+          // Auto-generate link name when link type changes
+          generateLinkName();
         });
       });
       
@@ -775,6 +1013,9 @@
       elements.appTrackerId.addEventListener('input', (e) => {
         state.appTrackerId = e.target.value;
         updateFinalLink();
+        
+        // Auto-generate link name when app id changes
+        generateLinkName();
       });
       
       // Raw link input
@@ -782,7 +1023,20 @@
         state.rawLink = e.target.value;
         if (state.rawLink.includes('http')) {
           parseRawLink();
+          
+          // Auto-generate link name after parsing
+          generateLinkName();
         }
+      });
+      
+      // Build from scratch button
+      elements.buildFromScratchBtn.addEventListener('click', () => {
+        elements.parameterSelector.style.display = elements.parameterSelector.style.display === 'none' ? 'block' : 'none';
+      });
+      
+      // Parameter search
+      elements.searchParameters.addEventListener('input', (e) => {
+        filterParameterOptions(e.target.value);
       });
       
       // Adjust settings toggles
@@ -803,7 +1057,7 @@
       
       // Add parameter button
       elements.addParamBtn.addEventListener('click', () => {
-        addParameter('', '');
+        elements.parameterSelector.style.display = 'block';
       });
       
       // Add event token button
@@ -844,6 +1098,7 @@
       // Confirm clear
       elements.confirmClear.addEventListener('click', () => {
         state.links = [];
+        state.linkCounter = 1;
         saveToLocalStorage();
         renderLinksHistory();
         elements.confirmModal.style.display = 'none';
@@ -876,6 +1131,48 @@
       });
     }
     
+    // Generate link name based on parameters
+    function generateLinkName() {
+      let appId = state.appTrackerId;
+      let mediaSource = '';
+      let sub3Value = '';
+      
+      // Find values from parameters
+      state.parameters.forEach(param => {
+        if (param.key === 'pid') {
+          mediaSource = param.value;
+        }
+        if (param.key === 'af_sub3') {
+          sub3Value = param.value;
+        }
+      });
+      
+      // Clean up values
+      appId = appId.replace(/[{}'"\s]/g, '');
+      mediaSource = mediaSource.replace(/[{}'"\s]/g, '');
+      sub3Value = sub3Value.replace(/[{}'"\s]/g, '');
+      
+      // Generate name
+      let name = `#${state.linkCounter}`;
+      
+      if (appId) {
+        name += ` - ${appId}`;
+      }
+      
+      if (mediaSource) {
+        name += ` - ${mediaSource}`;
+      }
+      
+      if (sub3Value) {
+        name += ` - ${sub3Value}`;
+      }
+      
+      name += ` ${state.linkType}`;
+      
+      state.linkName = name;
+      elements.linkName.value = name;
+    }
+    
     // Update UI based on selected platform
     function updateUIBasedOnPlatform() {
       if (state.platform === 'Appsflyer') {
@@ -906,7 +1203,9 @@
       state.prefixParameters = false;
       state.addTrackerLimit = false;
       state.addRejectedCallback = false;
-      state.linkName = "";
+      
+      // Generate link name
+      generateLinkName();
       
       // Update UI
       elements.platformButtons.forEach(btn => {
@@ -1123,9 +1422,13 @@
       }
     }
     
-    // Render parameters list
+    // Render parameters list with 2 columns
     function renderParametersList() {
       elements.parametersList.innerHTML = '';
+      
+      // Create grid container
+      const grid = document.createElement('div');
+      grid.className = 'grid-2-columns';
       
       state.parameters.forEach(param => {
         const paramItem = document.createElement('div');
@@ -1135,8 +1438,10 @@
           <input type="text" value="${escapeHtml(param.value)}" placeholder="Value" data-id="${param.id}" data-type="value">
           <button class="btn-outline btn-sm remove-param" data-id="${param.id}">&times;</button>
         `;
-        elements.parametersList.appendChild(paramItem);
+        grid.appendChild(paramItem);
       });
+      
+      elements.parametersList.appendChild(grid);
       
       // Add event listeners to parameter inputs
       document.querySelectorAll('[data-type="key"]').forEach(input => {
@@ -1193,6 +1498,13 @@
           state.parameters[paramIndex].value = value;
         }
         updateFinalLink();
+        
+        // Update link name if pid or af_sub3 changed
+        if (type === 'key' && (value === 'pid' || value === 'af_sub3')) {
+          generateLinkName();
+        } else if (type === 'value' && (state.parameters[paramIndex].key === 'pid' || state.parameters[paramIndex].key === 'af_sub3')) {
+          generateLinkName();
+        }
       }
     }
     
@@ -1219,14 +1531,29 @@
       state.parameters.push(param);
       renderParametersList();
       updateFinalLink();
+      
+      // Update link name if pid or af_sub3 added
+      if (key === 'pid' || key === 'af_sub3') {
+        generateLinkName();
+      }
     }
     
     // Remove parameter
     function removeParameter(e) {
       const id = e.target.dataset.id;
+      
+      // Check if we're removing pid or af_sub3
+      const removedParam = state.parameters.find(p => p.id === id);
+      const isPidOrSub3 = removedParam && (removedParam.key === 'pid' || removedParam.key === 'af_sub3');
+      
       state.parameters = state.parameters.filter(p => p.id !== id);
       renderParametersList();
       updateFinalLink();
+      
+      // Update link name if we removed pid or af_sub3
+      if (isPidOrSub3) {
+        generateLinkName();
+      }
     }
     
     // Add event token
@@ -1275,9 +1602,13 @@
       };
       
       state.links.unshift(link);
+      state.linkCounter++; // Increment the link counter for next link
       saveToLocalStorage();
       renderLinksHistory();
       showToast('Link saved successfully');
+      
+      // Generate a new name for the next link
+      generateLinkName();
       
       // Switch to history tab
       document.querySelector('.tab[data-tab="history"]').click();
@@ -1456,7 +1787,8 @@
     function saveToLocalStorage() {
       const data = {
         links: state.links,
-        theme: state.theme
+        theme: state.theme,
+        linkCounter: state.linkCounter
       };
       
       localStorage.setItem('linkGenie', JSON.stringify(data));
@@ -1470,6 +1802,7 @@
         const parsed = JSON.parse(data);
         state.links = parsed.links || [];
         state.theme = parsed.theme || 'light';
+        state.linkCounter = parsed.linkCounter || 1;
       }
     }
     
