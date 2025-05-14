@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Link Generator</title>
   <style>
     body {
@@ -84,25 +83,14 @@
       float: right;
       cursor: pointer;
     }
+    #history {
+      max-height: 300px;
+      overflow-y: auto;
+    }
   </style>
 </head>
 <body>
   <div class="sidebar">
-    <h2>ClearBI</h2>
-    <h3>SMARTVIEWS</h3>
-    <p>Dashboard</p>
-    <p>New SmartView</p>
-    <h3>CLIENT REPORTS</h3>
-    <p>CRM Import Data</p>
-    <h3>APPSFLYER AGENCY</h3>
-    <p>Apps & AMs</p>
-    <p>Pub. Managers</p>
-    <p>Agency Accounts</p>
-    <h3>ADJUST AGENCY</h3>
-    <p>Account Managers</p>
-    <h3>OTHERS</h3>
-    <p>User Activity</p>
-    <p>Logout</p>
     <p>Link tool</p>
   </div>
 
@@ -111,37 +99,37 @@
       <h2>Link Generator</h2>
       <form id="linkForm">
         <div class="input-group">
-          <select name="platform" id="platformSelect" onchange="handlePlatformChange()">
+          <select id="platformSelect" onchange="handlePlatformChange()">
             <option value="appsflyer">Appsflyer</option>
             <option value="adjust">Adjust</option>
           </select>
-          <select name="linkType" id="linkType">
+          <select id="linkType">
             <option value="cta">CTA</option>
             <option value="vta">VTA</option>
           </select>
-          <input type="text" id="appOrTracker" name="appOrTracker" placeholder="App id" />
+          <input type="text" id="appOrTracker" placeholder="App id"/>
         </div>
         <div id="adjustOptions" style="display:none">
-          <label><input type="checkbox" id="prefixAdjust"> Add adj_ prefix to all parameters</label><br>
+          <label><input type="checkbox" id="prefixAdjust"/> Add adj_ prefix to all parameters</label>
         </div>
-        <textarea name="trackingLink" id="trackingLink" placeholder="Paste the link here"></textarea>
-        <input type="text" id="linkName" placeholder="Enter name for link" style="width:100%;padding:10px;margin:10px 0;" />
+        <textarea id="trackingLink" placeholder="Paste the link here">https://app.appsflyer.com/{app_id}?pid={media_source}&af_siteid={ApplicationID}&c={CampaignName}</textarea>
+        <input type="text" id="linkName" placeholder="Enter name for link" style="width:100%;padding:10px;margin:10px 0;"/>
         <div id="paramsContainer"></div>
         <button type="button" onclick="addParamEditor()">+ Add Custom Param</button>
-        <br /><br />
-        <div id="adjustEvents" style="display: none">
+        <br/><br/>
+        <div id="adjustEvents" style="display:none">
           <h4>Adjust Event Generator</h4>
           <div id="eventContainer"></div>
           <button type="button" onclick="addEventEditor()">+ Add Event</button>
         </div>
-        <br />
+        <br/>
         <button type="submit">Save Link</button>
       </form>
     </div>
 
     <div class="card">
       <h3>Link History</h3>
-      <input type="text" id="searchBox" placeholder="Search by name" style="width:100%;padding:10px;margin-bottom:10px;" oninput="renderHistory()" />
+      <input type="text" id="searchBox" placeholder="Search by name" style="width:100%;padding:10px;margin-bottom:10px;" oninput="renderHistory()"/>
       <div id="history"></div>
     </div>
   </div>
@@ -165,7 +153,7 @@
 
     function saveLinkInternally(label, url) {
       const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-      existing.push({ label, url });
+      existing.unshift({ label, url }); // newest first
       localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
     }
 
@@ -196,14 +184,16 @@
 
     function renderParams(url) {
       paramsContainer.innerHTML = '';
+      eventContainer.innerHTML = '';
       const params = parseParams(url);
-      params.forEach(({ key, value }) => addParamEditor(key, value));
-
-      const existingEvent = params.find(p => p.key.startsWith('event_callback_'));
-      if (existingEvent) {
-        const tokenMatch = existingEvent.key.match(/event_callback_(.+)/);
-        if (tokenMatch) addEventEditor(tokenMatch[1]);
-      }
+      params.forEach(({ key, value }) => {
+        if (key.startsWith('event_callback_')) {
+          const token = key.replace('event_callback_', '');
+          addEventEditor(token);
+        } else {
+          addParamEditor(key, value);
+        }
+      });
     }
 
     function addParamEditor(key = '', value = '') {
@@ -241,13 +231,16 @@
     function renderHistory() {
       const filter = searchBox.value.toLowerCase();
       const history = fetchLinkHistoryInternally();
-      historyDiv.innerHTML = history.filter(h => h.label.toLowerCase().includes(filter)).map((item, i) => `
-        <div class="history-entry">
-          <span class="link-label">${i + 1}. ${item.label}</span><br />
-          <span class="link-url">${item.url}</span>
-          <span class="share-icon">🔗</span>
-        </div>
-      `).join('');
+      historyDiv.innerHTML = history
+        .filter(h => h.label.toLowerCase().includes(filter))
+        .map((item, i) => `
+          <div class="history-entry">
+            <span class="link-label">${i + 1}. ${item.label}</span><br />
+            <span class="link-url">${item.url}</span>
+            <span class="share-icon" onclick="navigator.clipboard.writeText('${item.url}')">🔗</span>
+          </div>
+        `)
+        .join('');
     }
 
     function handlePlatformChange() {
@@ -265,7 +258,7 @@
 
     function updateLiveLinkPreview() {
       let baseUrl = trackingLink.value.split('?')[0];
-      const params = new URLSearchParams();
+      const newParams = new URLSearchParams();
       const selectedPlatform = platformSelect.value;
       const inputs = paramsContainer.querySelectorAll('.param-editor');
 
@@ -273,34 +266,33 @@
         const [keyInput, valueInput] = div.querySelectorAll('input');
         if (keyInput.value && valueInput.value) {
           let key = keyInput.value;
-          if (selectedPlatform === 'adjust' && prefixAdjust.checked) {
+          if (selectedPlatform === 'adjust' && prefixAdjust.checked && !key.startsWith('adj_')) {
             key = `adj_${key}`;
           }
-          params.set(key, valueInput.value);
+          newParams.set(key, valueInput.value);
         }
       });
 
       if (selectedPlatform === 'adjust') {
-        if (!Array.from(params.keys()).includes('tracker_limit')) {
-          params.set('tracker_limit', '250000');
+        if (!Array.from(newParams.keys()).includes('tracker_limit')) {
+          newParams.set('tracker_limit', '250000');
         }
         const events = eventContainer.querySelectorAll('.event-editor');
         events.forEach(div => {
           const [tokenInput] = div.querySelectorAll('input');
           if (tokenInput.value) {
-            params.set(`event_callback_${tokenInput.value}`, `cpp_icb{id}%26event_id%3D${tokenInput.value}`);
+            const token = tokenInput.value;
+            newParams.set(`event_callback_${token}`, `cpp_icb{id}&event_id=${token}`);
           }
         });
       }
 
-      trackingLink.value = `${baseUrl}?${params.toString()}`;
+      trackingLink.value = `${baseUrl}?${newParams.toString()}`;
     }
 
     paramsContainer.addEventListener('input', updateLiveLinkPreview);
     eventContainer.addEventListener('input', updateLiveLinkPreview);
     prefixAdjust.addEventListener('change', updateLiveLinkPreview);
-
-    renderHistory();
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
@@ -312,6 +304,8 @@
       paramsContainer.innerHTML = '';
       eventContainer.innerHTML = '';
     });
+
+    renderHistory();
   </script>
 </body>
 </html>
