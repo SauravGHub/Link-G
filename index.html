@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -585,6 +586,9 @@
         <div class="form-group">
           <label>Link Preview</label>
           <div class="link-preview" id="linkPreview"></div>
+          <div class="form-row" style="justify-content: flex-end; margin-top: 0.5rem;">
+            <button class="btn-outline btn-sm" id="resetBtn">Reset to Sample</button>
+          </div>
         </div>
         
         <div class="form-group">
@@ -594,13 +598,15 @@
           </div>
         </div>
         
-        <div class="form-row">
+        <!-- Appsflyer Type Toggle (CTA, VTA, OneLink) -->
+        <div id="appsflyerTypeToggle" class="form-row">
           <div class="form-col">
             <div class="form-group">
               <label for="linkType">Link Type</label>
               <div class="platform-toggle" id="linkTypeToggle">
                 <button class="platform-btn active" data-type="CTA">CTA</button>
                 <button class="platform-btn" data-type="VTA">VTA</button>
+                <button class="platform-btn" data-type="OneLink">OneLink</button>
               </div>
             </div>
           </div>
@@ -613,13 +619,29 @@
           </div>
         </div>
         
+        <!-- OneLink specific fields (hidden by default) -->
+        <div id="oneLinkFields" class="form-row" style="display: none;">
+          <div class="form-col">
+            <div class="form-group">
+              <label for="subdomain">Subdomain</label>
+              <input type="text" id="subdomain" placeholder="yourcompany">
+            </div>
+          </div>
+          <div class="form-col">
+            <div class="form-group">
+              <label for="templateId">Template ID</label>
+              <input type="text" id="templateId" placeholder="abcd1234">
+            </div>
+          </div>
+        </div>
+
         <div class="form-group">
           <label for="rawLink">Paste tracking link (optional)</label>
           <textarea id="rawLink" placeholder="https://app.appsflyer.com/com.example.app?pid=source&af_siteid=123"></textarea>
         </div>
         
-        <!-- Build from scratch option -->
-        <div class="form-group">
+        <!-- Build from scratch option - DISABLED -->
+        <!-- <div class="form-group">
           <button id="buildFromScratchBtn" class="btn-primary">Build Link from Scratch</button>
           <div id="parameterSelector" class="parameter-selector" style="display: none;">
             <div class="parameter-search">
@@ -627,7 +649,7 @@
             </div>
             <div class="parameter-grid" id="parameterOptions"></div>
           </div>
-        </div> 
+        </div> -->
         
         <!-- Adjust Settings (hidden by default) -->
         <div id="adjustSettings" class="adjust-settings" style="display:none;">
@@ -673,7 +695,7 @@
           </div>
         </div>
         
-        <!-- Parameters Section with 2 column layout -->
+        <!-- Parameters Section with mandatory parameters -->
         <div class="form-group">
           <div class="form-header">
             <label>Parameters</label>
@@ -708,14 +730,11 @@
         
         <!-- Link Name and Save -->
         <div class="form-group">
-          <label for="linkName">Name the link</label>
+          <label for="linkName">Link ID</label>
           <input type="text" id="linkName" placeholder="My Awesome Campaign">
         </div>
         
         <div class="form-row">
-          <div class="form-col">
-            <button class="btn-outline" id="resetBtn">Reset to Sample</button>
-          </div>
           <div class="form-col" style="text-align: right;">
             <button class="btn-primary" id="saveBtn">Save Link</button>
           </div>
@@ -756,95 +775,54 @@
       </div>
     </div>
   </div>
+  
+  <!-- Modal for confirming parameter removal -->
+  <div id="confirmParamRemovalModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Remove parameter?</h3>
+        <button class="close-modal" id="closeParamModal">&times;</button>
+      </div>
+      <p>Are you sure you want to remove this parameter? This might affect your tracking link functionality.</p>
+      <div style="display: flex; justify-content: space-between; margin-top: 1.5rem;">
+        <button class="btn-outline" id="cancelRemoveParam">Cancel</button>
+        <button class="btn-primary" id="confirmRemoveParam">Remove</button>
+      </div>
+    </div>
+  </div>
 
   <script>
-    // AppsFlyer parameters
-    const appsflyerParameters = [
-      { key: "pid", description: "Uniquely identifies an AppsFlyer integrated partner." },
-      { key: "c", description: "Provided by the advertiser or the publisher." },
-      { key: "af_prt", description: "Agency Account Name for agency attribution." },
-      { key: "af_mp", description: "Enable postbacks to publisher marketing partners." },
-      { key: "clickid", description: "Ad network unique click identifier." },
-      { key: "af_siteid", description: "Unique ID identifying the publisher." },
-      { key: "af_sub_siteid", description: "Ad sub-network/Publisher ID." },
-      { key: "af_c_id", description: "Provided by the advertiser/publisher." },
-      { key: "af_adset", description: "Intermediate campaign level." },
-      { key: "af_adset_id", description: "Provided by the advertiser/publisher." },
-      { key: "af_ad", description: "Ad Name provided by the advertiser/publisher." },
-      { key: "af_ad_id", description: "Provided by the advertiser/publisher." },
-      { key: "af_ad_type", description: "Describes the ad's type." },
-      { key: "af_ad_format", description: "Format of the advertisement." },
-      { key: "af_click_lookback", description: "Lookback window for click attribution." },
-      { key: "af_viewthrough_lookback", description: "View-through lookback window." },
-      { key: "af_channel", description: "Media source channel." },
-      { key: "af_keywords", description: "Used for text-targeted campaigns." },
-      { key: "af_cost_model", description: "Cost model for attribution." },
-      { key: "af_cost_currency", description: "Currency code for cost value." },
-      { key: "af_cost_value", description: "Monetary value of cost." },
-      { key: "af_sub1", description: "Custom optional advertiser parameter 1." },
-      { key: "af_sub2", description: "Custom optional advertiser parameter 2." },
-      { key: "af_sub3", description: "Custom optional advertiser parameter 3." },
-      { key: "af_sub4", description: "Custom optional advertiser parameter 4." },
-      { key: "af_sub5", description: "Custom optional advertiser parameter 5." },
-      { key: "af_r", description: "Redirect users to specified URL." },
-      { key: "af_web_dp", description: "Redirect desktop users to different web page." },
-      { key: "af_dp", description: "URI scheme fallback for deep linking." },
-      { key: "af_force_deeplink", description: "Force deep linking to specified activity." },
-      { key: "af_ref", description: "Unique referrer for S2S click attribution." },
-      { key: "is_incentivized", description: "Boolean for campaign type." },
-      { key: "af_param_forwarding", description: "Control if link parameters are forwarded." },
-      { key: "af_base_params_forward", description: "Controls forwarding of PID and C." },
-      { key: "af_partner_account_id", description: "Advertiser's partner account ID." },
-      { key: "redirect", description: "Marks link as S2S click (no redirect)." },
-      { key: "af_ua", description: "Device User-Agent string." },
-      { key: "af_ip", description: "Device IP address." },
-      { key: "af_os_version", description: "Device OS version." },
-      { key: "af_model", description: "Device model name." },
-      { key: "af_media_type", description: "Placement of ad (app/web)." },
-      { key: "deep_link_sub1", description: "Additional deep link value 1." },
-      { key: "deep_link_sub2", description: "Additional deep link value 2." },
-      { key: "deep_link_sub3", description: "Additional deep link value 3." },
-      { key: "deep_link_sub4", description: "Additional deep link value 4." },
-      { key: "deep_link_sub5", description: "Additional deep link value 5." },
-      { key: "deep_link_value", description: "Targeted in-app content." },
-      { key: "af_og_title", description: "Open Graph title for social preview." },
-      { key: "af_og_description", description: "Open Graph description." },
-      { key: "af_og_image", description: "Open Graph image for social preview." },
-      { key: "is_retargeting", description: "Marks campaign as retargeting." },
-      { key: "af_reengagement_window", description: "Retargeting attribution window." },
-      { key: "af_video_total_length", description: "Duration of video ad." },
-      { key: "af_video_played_length", description: "Viewed duration of video." },
-      { key: "af_playable_played_length", description: "Played duration of playable." },
-      { key: "af_ad_time_viewed", description: "Ad screen visibility duration." },
-      { key: "af_ad_displayed_percent", description: "Percent of ad visible on screen." },
-      { key: "af_audio_total_length", description: "Duration of audio ad." },
-      { key: "af_audio_played_length", description: "Heard duration of audio ad." },
-      { key: "advertising_id", description: "Google Advertising ID." },
-      { key: "sha1_advertising_id", description: "SHA1 hash of Advertising ID." },
-      { key: "md5_advertising_id", description: "MD5 hash of Advertising ID." },
-      { key: "android_id", description: "Device Android ID." },
-      { key: "sha1_android_id", description: "SHA1 hash of Android ID." },
-      { key: "md5_android_id", description: "MD5 hash of Android ID." },
-      { key: "imei", description: "Device IMEI." },
-      { key: "sha1_imei", description: "SHA1 hash of IMEI." },
-      { key: "md5_imei", description: "MD5 hash of IMEI." },
-      { key: "oaid", description: "Open Anonymous Device ID." },
-      { key: "sha1_oaid", description: "SHA1 hash of OAID." },
-      { key: "md5_oaid", description: "MD5 hash of OAID." },
-      { key: "af_android_url", description: "Redirect Android users to custom store." },
-      { key: "sha1_el", description: "Hashed email for desktop to mobile." },
-      { key: "fire_advertising_id", description: "Amazon Fire Advertising ID." },
-      { key: "af_android_store_csl", description: "Custom Google Play store listing." },
-      { key: "idfa", description: "iOS Identifier for Advertisers." },
-      { key: "idfv", description: "iOS Identifier for Vendors." },
-      { key: "af_ios_url", description: "Redirect iOS users to alternate URL." },
-      { key: "af_ios_store_cpp", description: "iOS custom product page ID." },
-      { key: "sha1_idfa", description: "SHA1 hash of IDFA." },
-      { key: "sha1_idfv", description: "SHA1 hash of IDFV." },
-      { key: "mac", description: "Device MAC address." },
-      { key: "md5_idfa", description: "MD5 hash of IDFA." },
-      { key: "md5_idfv", description: "MD5 hash of IDFV." },
-      { key: "sha1_mac", description: "SHA1 hash of MAC address." },
+    // Updated list of mandatory parameters
+    const mandatoryParameters = [
+      { key: "pid", description: "Media source (e.g., network or partner name)" },
+      { key: "af_siteid", description: "Publisher/site ID" },
+      { key: "c", description: "Campaign name" },
+      { key: "af_c_id", description: "Campaign ID" },
+      { key: "af_adset_id", description: "Ad set ID" },
+      { key: "af_adset", description: "Ad set name" },
+      { key: "af_ad_id", description: "Ad ID" },
+      { key: "af_ad", description: "Ad name or creative" },
+      { key: "af_channel", description: "Distribution channel (e.g., programmatic, UAC)" },
+      { key: "deep_link_value", description: "In-app destination/deep link path" },
+      { key: "af_sub3", description: "Custom parameter (publisher id from Swaarm)" },
+      { key: "af_sub1", description: "Custom parameter (used here for app name)" },
+      { key: "af_click_lookback", description: "Click attribution lookback window (e.g., 7d)" },
+      { key: "af_ip", description: "User IP address" },
+      { key: "af_lang", description: "Device language" },
+      { key: "af_os", description: "Operating system name" },
+      { key: "af_ua", description: "User agent string" },
+      { key: "appname", description: "App name (custom macro)" },
+      { key: "clickid", description: "Click identifier from ad network" },
+      { key: "advertising_id", description: "Google Advertising ID (GAID)" },
+      { key: "android_id", description: "Android device ID" },
+      { key: "idfa", description: "iOS Advertising ID" },
+      { key: "md5_advertising_id", description: "MD5-hashed GAID" },
+      { key: "md5_android_id", description: "MD5-hashed Android ID" },
+      { key: "idfv", description: "iOS Identifier for Vendor" },
+      { key: "af_model", description: "Device model (e.g., iPhone 13, Pixel 5)" },
+      { key: "af_os_version", description: "OS version (e.g., iOS 17.3, Android 12)" },
+      { key: "imei", description: "Device IMEI (when available)" },
+      { key: "af_prt", description: "Agency partner name (for agency attribution)" }
     ];
     
     // State management
@@ -853,7 +831,10 @@
       linkType: "CTA",
       appTrackerId: "",
       rawLink: "",
-      parameters: [],
+      subdomain: "", // For OneLink
+      templateId: "", // For OneLink
+      // Initialize with the mandatory parameters list
+      parameters: mandatoryParameters.map(param => ({ id: generateId(), key: param.key, value: "" })),
       eventTokens: [],
       prefixParameters: false,
       addTrackerLimit: false,
@@ -862,7 +843,8 @@
       linkName: "",
       links: [],
       linkCounter: 1, // For automatic link numbering
-      theme: "light"
+      theme: "light",
+      pendingRemovalId: null // To track which parameter is pending removal
     };
 
     // DOM elements
@@ -872,6 +854,9 @@
       appTrackerIdLabel: document.getElementById('appTrackerIdLabel'),
       appTrackerId: document.getElementById('appTrackerId'),
       rawLink: document.getElementById('rawLink'),
+      oneLinkFields: document.getElementById('oneLinkFields'),
+      subdomain: document.getElementById('subdomain'),
+      templateId: document.getElementById('templateId'),
       adjustSettings: document.getElementById('adjustSettings'),
       prefixToggle: document.getElementById('prefixToggle'),
       trackerLimitToggle: document.getElementById('trackerLimitToggle'),
@@ -896,10 +881,11 @@
       cancelClear: document.getElementById('cancelClear'),
       confirmClear: document.getElementById('confirmClear'),
       themeToggle: document.getElementById('themeToggle'),
-      buildFromScratchBtn: document.getElementById('buildFromScratchBtn'),
-      parameterSelector: document.getElementById('parameterSelector'),
-      searchParameters: document.getElementById('searchParameters'),
-      parameterOptions: document.getElementById('parameterOptions')
+      // New elements for parameter removal confirmation
+      confirmParamRemovalModal: document.getElementById('confirmParamRemovalModal'),
+      closeParamModal: document.getElementById('closeParamModal'),
+      cancelRemoveParam: document.getElementById('cancelRemoveParam'),
+      confirmRemoveParam: document.getElementById('confirmRemoveParam')
     };
 
     // Initialize app
@@ -910,7 +896,6 @@
       renderParametersList();
       loadSampleLink();
       renderLinksHistory();
-      populateParameterOptions();
       setTheme(state.theme);
       
       // Initialize link counter based on existing links
@@ -926,60 +911,6 @@
       }
     }
     
-    // Populate parameter options
-    function populateParameterOptions() {
-      elements.parameterOptions.innerHTML = '';
-      
-      appsflyerParameters.forEach(param => {
-        const paramElement = document.createElement('div');
-        paramElement.className = 'parameter-option';
-        paramElement.dataset.key = param.key;
-        paramElement.innerHTML = `
-          <div class="parameter-option-name">${param.key}</div>
-          <div class="parameter-option-desc">${param.description}</div>
-        `;
-        
-        paramElement.addEventListener('click', () => {
-          addParameter(param.key, '');
-          elements.parameterSelector.style.display = 'none';
-        });
-        
-        elements.parameterOptions.appendChild(paramElement);
-      });
-      
-      // Add custom parameter option
-      const customParam = document.createElement('div');
-      customParam.className = 'parameter-option';
-      customParam.innerHTML = `
-        <div class="parameter-option-name">Custom Parameter</div>
-        <div class="parameter-option-desc">Add your own custom parameter</div>
-      `;
-      
-      customParam.addEventListener('click', () => {
-        addParameter('', '');
-        elements.parameterSelector.style.display = 'none';
-      });
-      
-      elements.parameterOptions.appendChild(customParam);
-    }
-    
-    // Filter parameter options
-    function filterParameterOptions(query) {
-      const options = elements.parameterOptions.querySelectorAll('.parameter-option');
-      const lowerQuery = query.toLowerCase();
-      
-      options.forEach(option => {
-        const key = option.querySelector('.parameter-option-name').textContent.toLowerCase();
-        const desc = option.querySelector('.parameter-option-desc').textContent.toLowerCase();
-        
-        if (key.includes(lowerQuery) || desc.includes(lowerQuery) || key === 'custom parameter') {
-          option.style.display = 'block';
-        } else {
-          option.style.display = 'none';
-        }
-      });
-    }
-    
     // Setup event listeners
     function setupEventListeners() {
       // Platform toggle
@@ -989,6 +920,15 @@
           btn.classList.add('active');
           state.platform = btn.dataset.platform;
           updateUIBasedOnPlatform();
+          
+          // Reset link type to CTA if switching platforms
+          if (state.linkType === "OneLink" && state.platform !== "Appsflyer") {
+            state.linkType = "CTA";
+            elements.linkTypeButtons.forEach(b => {
+              b.classList.toggle('active', b.dataset.type === "CTA");
+            });
+          }
+          
           updateFinalLink();
           
           // Auto-generate link name when platform changes
@@ -1002,6 +942,12 @@
           elements.linkTypeButtons.forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
           state.linkType = btn.dataset.type;
+          
+          // Toggle OneLink fields visibility
+          elements.oneLinkFields.style.display = state.linkType === "OneLink" ? "flex" : "none";
+          
+          // Update template link based on link type
+          updateTemplateLink();
           updateFinalLink();
           
           // Auto-generate link name when link type changes
@@ -1018,6 +964,18 @@
         generateLinkName();
       });
       
+      // OneLink subdomain input
+      elements.subdomain.addEventListener('input', (e) => {
+        state.subdomain = e.target.value;
+        updateFinalLink();
+      });
+      
+      // OneLink template ID input
+      elements.templateId.addEventListener('input', (e) => {
+        state.templateId = e.target.value;
+        updateFinalLink();
+      });
+      
       // Raw link input
       elements.rawLink.addEventListener('input', (e) => {
         state.rawLink = e.target.value;
@@ -1027,16 +985,6 @@
           // Auto-generate link name after parsing
           generateLinkName();
         }
-      });
-      
-      // Build from scratch button
-      elements.buildFromScratchBtn.addEventListener('click', () => {
-        elements.parameterSelector.style.display = elements.parameterSelector.style.display === 'none' ? 'block' : 'none';
-      });
-      
-      // Parameter search
-      elements.searchParameters.addEventListener('input', (e) => {
-        filterParameterOptions(e.target.value);
       });
       
       // Adjust settings toggles
@@ -1057,7 +1005,7 @@
       
       // Add parameter button
       elements.addParamBtn.addEventListener('click', () => {
-        elements.parameterSelector.style.display = 'block';
+        addParameter('', ''); // Add a blank parameter row
       });
       
       // Add event token button
@@ -1119,7 +1067,37 @@
       window.addEventListener('click', (e) => {
         if (e.target === elements.confirmModal) {
           elements.confirmModal.style.display = 'none';
+        } else if (e.target === elements.confirmParamRemovalModal) {
+          elements.confirmParamRemovalModal.style.display = 'none';
+          state.pendingRemovalId = null;
         }
+      });
+      
+      // Parameter removal confirmation
+      elements.closeParamModal.addEventListener('click', () => {
+        elements.confirmParamRemovalModal.style.display = 'none';
+        state.pendingRemovalId = null;
+      });
+      
+      elements.cancelRemoveParam.addEventListener('click', () => {
+        elements.confirmParamRemovalModal.style.display = 'none';
+        state.pendingRemovalId = null;
+      });
+      
+      elements.confirmRemoveParam.addEventListener('click', () => {
+        const id = state.pendingRemovalId;
+        if (id) {
+          const paramIndex = state.parameters.findIndex(p => p.id === id);
+          
+          if (paramIndex !== -1) {
+            state.parameters.splice(paramIndex, 1);
+            renderParametersList();
+            updateFinalLink();
+          }
+        }
+        
+        elements.confirmParamRemovalModal.style.display = 'none';
+        state.pendingRemovalId = null;
       });
       
       // Theme toggle
@@ -1129,6 +1107,27 @@
       elements.linkName.addEventListener('input', (e) => {
         state.linkName = e.target.value;
       });
+    }
+    
+    // Update template link based on link type
+    function updateTemplateLink() {
+      if (state.linkType === "CTA") {
+        if (state.platform === "Appsflyer") {
+          state.rawLink = `https://app.appsflyer.com/{app_id}?pid={media_source}&c={campaign_name}`;
+        } else {
+          state.rawLink = `https://app.adjust.com/{tracker_id}?pid={media_source}&c={campaign_name}`;
+        }
+      } else if (state.linkType === "VTA") {
+        if (state.platform === "Appsflyer") {
+          state.rawLink = `https://impression.appsflyer.com/{app_id}?pid={media_source}&c={campaign_name}`;
+        } else {
+          state.rawLink = `https://view.adjust.com/{tracker_id}?pid={media_source}&c={campaign_name}`;
+        }
+      } else if (state.linkType === "OneLink" && state.platform === "Appsflyer") {
+        state.rawLink = `https://{subdomain}.onelink.me/{template_id}?pid={media_source}&c={campaign_name}`;
+      }
+      
+      elements.rawLink.value = state.rawLink;
     }
     
     // Generate link name based on parameters
@@ -1180,25 +1179,46 @@
         elements.appTrackerId.placeholder = 'com.example.app';
         elements.adjustSettings.style.display = 'none';
         elements.eventTokensSection.style.display = 'none';
+        
+        // Show OneLink option only for Appsflyer
+        document.querySelector('.platform-btn[data-type="OneLink"]').style.display = 'block';
       } else {
         elements.appTrackerIdLabel.textContent = 'Tracker ID';
         elements.appTrackerId.placeholder = '1nxc2xqx';
         elements.adjustSettings.style.display = 'block';
         elements.eventTokensSection.style.display = 'block';
+        
+        // Hide OneLink option for Adjust
+        document.querySelector('.platform-btn[data-type="OneLink"]').style.display = 'none';
+        // Hide OneLink fields if they were visible
+        elements.oneLinkFields.style.display = 'none';
       }
+      
+      // Update OneLink fields visibility
+      if (state.platform === 'Appsflyer' && state.linkType === 'OneLink') {
+        elements.oneLinkFields.style.display = 'flex';
+      } else {
+        elements.oneLinkFields.style.display = 'none';
+      }
+      
+      // Update template link
+      updateTemplateLink();
     }
     
     // Load default sample link
     function loadSampleLink() {
       state.platform = "Appsflyer";
       state.linkType = "CTA";
-      state.appTrackerId = "{app_id}";
-      state.rawLink = "https://app.appsflyer.com/{app_id}?pid={media_source}&c={campaign_name}&af_prt={agency_name}";
-      state.parameters = [
-        { id: generateId(), key: "pid", value: "{media_source}" },
-        { id: generateId(), key: "c", value: "{campaign_name}" },
-        { id: generateId(), key: "af_prt", value: "{agency_name}" }
-      ];
+      state.subdomain = "{subdomain}";
+      state.templateId = "{template_id}";
+      
+      // Reset parameters to just the mandatory ones with empty values
+      state.parameters = mandatoryParameters.map(param => ({ 
+        id: generateId(), 
+        key: param.key, 
+        value: "" 
+      }));
+      
       state.eventTokens = [];
       state.prefixParameters = false;
       state.addTrackerLimit = false;
@@ -1217,6 +1237,8 @@
       });
       
       elements.appTrackerId.value = state.appTrackerId;
+      elements.subdomain.value = state.subdomain;
+      elements.templateId.value = state.templateId;
       elements.rawLink.value = state.rawLink;
       elements.prefixToggle.checked = state.prefixParameters;
       elements.trackerLimitToggle.checked = state.addTrackerLimit;
@@ -1234,16 +1256,49 @@
       try {
         const url = new URL(state.rawLink);
         
-        // Detect platform
+        // Detect platform and link type
         if (url.hostname.includes('appsflyer.com')) {
           state.platform = 'Appsflyer';
+          
+          // Check if it's a CTA (app) or VTA (impression) link
+          if (url.hostname.includes('impression')) {
+            state.linkType = 'VTA';
+          } else {
+            state.linkType = 'CTA';
+          }
+          
           // Extract app ID from path
           const pathParts = url.pathname.split('/');
           if (pathParts.length > 1) {
             state.appTrackerId = pathParts[1];
           }
+        } else if (url.hostname.includes('onelink.me')) {
+          state.platform = 'Appsflyer';
+          state.linkType = 'OneLink';
+          
+          // Extract subdomain and template ID
+          const hostnameParts = url.hostname.split('.');
+          if (hostnameParts.length > 0) {
+            state.subdomain = hostnameParts[0];
+          }
+          
+          const pathParts = url.pathname.split('/');
+          if (pathParts.length > 1) {
+            state.templateId = pathParts[1];
+          }
+          
+          elements.subdomain.value = state.subdomain;
+          elements.templateId.value = state.templateId;
         } else if (url.hostname.includes('adjust.com')) {
           state.platform = 'Adjust';
+          
+          // Check if it's a CTA (app) or VTA (view) link
+          if (url.hostname.includes('view')) {
+            state.linkType = 'VTA';
+          } else {
+            state.linkType = 'CTA';
+          }
+          
           // Extract tracker ID from path
           const pathParts = url.pathname.split('/');
           if (pathParts.length > 1) {
@@ -1254,6 +1309,11 @@
         // Update platform buttons
         elements.platformButtons.forEach(btn => {
           btn.classList.toggle('active', btn.dataset.platform === state.platform);
+        });
+        
+        // Update link type buttons
+        elements.linkTypeButtons.forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.type === state.linkType);
         });
         
         // Extract parameters
@@ -1285,28 +1345,6 @@
         if (newEventTokens.length > 0) {
           state.eventTokens = newEventTokens;
         }
-        
-        // Detect link type
-        const hasClick = Array.from(params.entries()).some(
-          ([key, value]) => key.includes('click') || value.includes('click')
-        );
-        
-        const hasViewOrImpression = Array.from(params.entries()).some(
-          ([key, value]) => 
-            key.includes('view') || value.includes('view') || 
-            key.includes('impression') || value.includes('impression')
-        );
-        
-        if (hasClick) {
-          state.linkType = 'CTA';
-        } else if (hasViewOrImpression) {
-          state.linkType = 'VTA';
-        }
-        
-        // Update link type buttons
-        elements.linkTypeButtons.forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.type === state.linkType);
-        });
         
         // Check for Adjust specific settings
         if (state.platform === 'Adjust') {
@@ -1348,9 +1386,19 @@
         let baseUrl = "";
         
         if (state.platform === "Appsflyer") {
-          baseUrl = `https://app.appsflyer.com/${state.appTrackerId}`;
+          if (state.linkType === "CTA") {
+            baseUrl = `https://app.appsflyer.com/${state.appTrackerId}`;
+          } else if (state.linkType === "VTA") {
+            baseUrl = `https://impression.appsflyer.com/${state.appTrackerId}`;
+          } else if (state.linkType === "OneLink") {
+            baseUrl = `https://${state.subdomain}.onelink.me/${state.templateId}`;
+          }
         } else if (state.platform === "Adjust") {
-          baseUrl = `https://app.adjust.com/${state.appTrackerId}`;
+          if (state.linkType === "CTA") {
+            baseUrl = `https://app.adjust.com/${state.appTrackerId}`;
+          } else if (state.linkType === "VTA") {
+            baseUrl = `https://view.adjust.com/${state.appTrackerId}`;
+          }
         }
         
         const searchParams = new URLSearchParams();
@@ -1422,26 +1470,24 @@
       }
     }
     
-    // Render parameters list with 2 columns
+    // Render parameters list with confirmation before removal
     function renderParametersList() {
       elements.parametersList.innerHTML = '';
-      
-      // Create grid container
-      const grid = document.createElement('div');
-      grid.className = 'grid-2-columns';
       
       state.parameters.forEach(param => {
         const paramItem = document.createElement('div');
         paramItem.className = 'parameter-item';
+        
+        // Check if this is a mandatory parameter (has a predefined key)
+        const isMandatoryParam = mandatoryParameters.some(p => p.key === param.key);
+        
         paramItem.innerHTML = `
-          <input type="text" value="${escapeHtml(param.key)}" placeholder="Key" data-id="${param.id}" data-type="key">
+          <input type="text" value="${escapeHtml(param.key)}" placeholder="Key" data-id="${param.id}" data-type="key" ${isMandatoryParam ? 'readonly class="bg-gray-100"' : ''}>
           <input type="text" value="${escapeHtml(param.value)}" placeholder="Value" data-id="${param.id}" data-type="value">
           <button class="btn-outline btn-sm remove-param" data-id="${param.id}">&times;</button>
         `;
-        grid.appendChild(paramItem);
+        elements.parametersList.appendChild(paramItem);
       });
-      
-      elements.parametersList.appendChild(grid);
       
       // Add event listeners to parameter inputs
       document.querySelectorAll('[data-type="key"]').forEach(input => {
@@ -1452,9 +1498,9 @@
         input.addEventListener('input', handleParameterChange);
       });
       
-      // Add event listeners to remove buttons
+      // Add event listeners to remove buttons with confirmation
       document.querySelectorAll('.remove-param').forEach(button => {
-        button.addEventListener('click', removeParameter);
+        button.addEventListener('click', confirmRemoveParameter);
       });
     }
     
@@ -1531,28 +1577,26 @@
       state.parameters.push(param);
       renderParametersList();
       updateFinalLink();
-      
-      // Update link name if pid or af_sub3 added
-      if (key === 'pid' || key === 'af_sub3') {
-        generateLinkName();
-      }
     }
     
-    // Remove parameter
-    function removeParameter(e) {
+    // Confirm remove parameter
+    function confirmRemoveParameter(e) {
       const id = e.target.dataset.id;
+      const paramIndex = state.parameters.findIndex(p => p.id === id);
       
-      // Check if we're removing pid or af_sub3
-      const removedParam = state.parameters.find(p => p.id === id);
-      const isPidOrSub3 = removedParam && (removedParam.key === 'pid' || removedParam.key === 'af_sub3');
-      
-      state.parameters = state.parameters.filter(p => p.id !== id);
-      renderParametersList();
-      updateFinalLink();
-      
-      // Update link name if we removed pid or af_sub3
-      if (isPidOrSub3) {
-        generateLinkName();
+      if (paramIndex !== -1) {
+        const param = state.parameters[paramIndex];
+        const isMandatoryParam = mandatoryParameters.some(p => p.key === param.key);
+        
+        if (isMandatoryParam) {
+          // Don't allow removal of mandatory parameters
+          showToast('Mandatory parameters cannot be removed');
+          return;
+        }
+        
+        // Set pending removal ID and show confirmation modal
+        state.pendingRemovalId = id;
+        elements.confirmParamRemovalModal.style.display = 'flex';
       }
     }
     
@@ -1579,7 +1623,7 @@
     // Save link
     function saveLink() {
       if (!state.linkName) {
-        showToast('Please enter a name for the link');
+        showToast('Please enter a link ID');
         return;
       }
       
@@ -1588,12 +1632,27 @@
         return;
       }
       
+      // Check for OneLink specific fields
+      if (state.platform === "Appsflyer" && state.linkType === "OneLink") {
+        if (!state.subdomain) {
+          showToast('Please enter a subdomain for OneLink');
+          return;
+        }
+        
+        if (!state.templateId) {
+          showToast('Please enter a template ID for OneLink');
+          return;
+        }
+      }
+      
       const link = {
         id: generateId(),
         name: state.linkName,
         platform: state.platform,
         linkType: state.linkType,
         appTrackerId: state.appTrackerId,
+        subdomain: state.subdomain,
+        templateId: state.templateId,
         rawLink: state.rawLink,
         parameters: state.parameters,
         eventTokens: state.eventTokens,
@@ -1702,6 +1761,8 @@
         state.platform = link.platform;
         state.linkType = link.linkType;
         state.appTrackerId = link.appTrackerId;
+        state.subdomain = link.subdomain || "";
+        state.templateId = link.templateId || "";
         state.rawLink = link.rawLink;
         state.parameters = [...link.parameters];
         state.eventTokens = [...link.eventTokens];
@@ -1711,10 +1772,10 @@
         // Check for Adjust settings
         if (state.platform === 'Adjust') {
           // Check for tracker_limit
-          state.addTrackerLimit = link.rawLink.includes('tracker_limit=250000');
+          state.addTrackerLimit = link.finalLink.includes('tracker_limit=250000');
           
           // Check for rejected callback
-          state.addRejectedCallback = link.rawLink.includes('adj_rejected_install_callback=');
+          state.addRejectedCallback = link.finalLink.includes('adj_rejected_install_callback=');
           
           // Check if parameters have ad_ prefix
           const relevantParams = link.parameters.filter(p => 
@@ -1738,6 +1799,8 @@
         });
         
         elements.appTrackerId.value = state.appTrackerId;
+        elements.subdomain.value = state.subdomain;
+        elements.templateId.value = state.templateId;
         elements.rawLink.value = state.rawLink;
         elements.prefixToggle.checked = state.prefixParameters;
         elements.trackerLimitToggle.checked = state.addTrackerLimit;
