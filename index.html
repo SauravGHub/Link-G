@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -186,16 +185,6 @@
       background-color: var(--primary-hover);
     }
 
-    .btn-secondary {
-      background-color: var(--secondary);
-      color: var(--text);
-      border: none;
-    }
-
-    .btn-secondary:hover {
-      background-color: var(--secondary-hover);
-    }
-
     .btn-outline {
       background-color: transparent;
       border: 1px solid var(--border);
@@ -204,55 +193,6 @@
 
     .btn-outline:hover {
       background-color: var(--secondary);
-    }
-
-    .btn-icon {
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-    }
-
-    .btn-sm {
-      padding: 0.25rem 0.5rem;
-      font-size: 0.75rem;
-    }
-
-    .parameters-list {
-      border: 1px solid var(--border);
-      border-radius: 0.375rem;
-      overflow: hidden;
-      margin-bottom: 1rem;
-    }
-
-    .parameters-header {
-      display: grid;
-      grid-template-columns: 1fr 1fr auto;
-      gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      background-color: var(--secondary);
-      font-weight: 600;
-      font-size: 0.875rem;
-    }
-
-    .parameter-item {
-      display: grid;
-      grid-template-columns: 1fr 1fr auto;
-      gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      border-top: 1px solid var(--border);
-      align-items: center;
-    }
-
-    .link-preview {
-      background-color: var(--secondary);
-      border-radius: 0.375rem;
-      padding: 1rem;
-      margin-bottom: 1.5rem;
-      overflow-x: auto;
-      font-family: monospace;
-      font-size: 0.875rem;
-      white-space: pre-wrap;
-      word-break: break-all;
     }
 
     .toast {
@@ -276,249 +216,6 @@
       opacity: 1;
     }
 
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 48px;
-      height: 24px;
-    }
-
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: var(--secondary);
-      transition: .4s;
-      border-radius: 34px;
-    }
-
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 18px;
-      width: 18px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: .4s;
-      border-radius: 50%;
-    }
-
-    input:checked + .slider {
-      background-color: var(--primary);
-    }
-
-    input:checked + .slider:before {
-      transform: translateX(24px);
-    }
-
-    .toggle-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 0.75rem;
-    }
-
-    .toggle-label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .info-icon {
-      cursor: help;
-      color: var(--text-light);
-      position: relative;
-    }
-
-    .info-icon:hover .tooltip {
-      display: block;
-    }
-
-    .tooltip {
-      display: none;
-      position: absolute;
-      bottom: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: var(--background);
-      color: var(--text);
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      padding: 0.5rem;
-      border-radius: 0.375rem;
-      width: 200px;
-      font-size: 0.75rem;
-      font-weight: normal;
-      z-index: 10;
-      margin-bottom: 0.5rem;
-      border: 1px solid var(--border);
-    }
-
-    .adjust-settings {
-      background-color: var(--secondary);
-      border-radius: 0.375rem;
-      padding: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .history-item {
-      border: 1px solid var(--border);
-      border-radius: 0.375rem;
-      padding: 1rem;
-      margin-bottom: 0.75rem;
-      background-color: var(--background);
-    }
-
-    .history-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.75rem;
-    }
-
-    .history-title {
-      font-weight: 600;
-      font-size: 1rem;
-      margin: 0;
-    }
-
-    .history-meta {
-      font-size: 0.75rem;
-      color: var(--text-light);
-      margin-bottom: 0.5rem;
-    }
-
-    .history-link {
-      background-color: var(--secondary);
-      padding: 0.5rem;
-      border-radius: 0.375rem;
-      font-family: monospace;
-      font-size: 0.75rem;
-      overflow-x: auto;
-      white-space: pre-wrap;
-      word-break: break-all;
-      margin-bottom: 0.5rem;
-    }
-
-    .action-row {
-      display: flex;
-      gap: 0.5rem;
-      justify-content: flex-end;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 3rem 0;
-      color: var(--text-light);
-    }
-
-    .theme-toggle {
-      background: none;
-      border: none;
-      color: var(--text);
-      font-size: 1.25rem;
-      cursor: pointer;
-      padding: 0.25rem;
-      width: 36px;
-      height: 36px;
-      border-radius: 0.375rem;
-    }
-
-    .theme-toggle:hover {
-      background-color: var(--secondary);
-    }
-
-    .parameter-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.75rem;
-    }
-    
-    .parameter-option {
-      border: 1px solid var(--border);
-      border-radius: 0.375rem;
-      padding: 0.75rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .parameter-option:hover {
-      border-color: var(--primary);
-      background-color: rgba(0, 150, 255, 0.05);
-    }
-    
-    .parameter-option-name {
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-      color: var(--primary);
-    }
-    
-    .parameter-option-desc {
-      font-size: 0.75rem;
-      color: var(--text-light);
-    }
-    
-    .parameter-selector {
-      background: var(--background);
-      border: 1px solid var(--border);
-      border-radius: 0.375rem;
-      padding: 1rem;
-      max-height: 400px;
-      overflow-y: auto;
-      margin-bottom: 1rem;
-    }
-    
-    .parameter-search {
-      margin-bottom: 1rem;
-    }
-    
-    .grid-2-columns {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
-    }
-
-    @media (max-width: 768px) {
-      .form-row {
-        flex-direction: column;
-      }
-      
-      .parameter-item {
-        grid-template-columns: 1fr 1fr auto;
-        gap: 0.25rem;
-      }
-      
-      .action-row {
-        flex-wrap: wrap;
-      }
-      
-      .history-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-      }
-      
-      .grid-2-columns {
-        grid-template-columns: 1fr;
-      }
-      
-      .parameter-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* Modal styles */
     .modal {
       display: none;
       position: fixed;
@@ -565,6 +262,51 @@
 
     .close-modal:hover {
       color: var(--text);
+    }
+
+    .parameters-list {
+      border: 1px solid var(--border);
+      border-radius: 0.375rem;
+      overflow-y: auto;
+      max-height: 400px;
+    }
+    
+    .parameters-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr 40px;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      font-weight: 600;
+      font-size: 0.75rem;
+      color: var(--text-light);
+      border-bottom: 1px solid var(--border);
+      background-color: var(--secondary);
+    }
+    
+    .parameter-item {
+      display: grid;
+      grid-template-columns: 1fr 1fr 40px;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+    }
+    
+    .parameter-item:last-child {
+      border-bottom: none;
+    }
+    
+    .parameter-item input {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+      height: 2rem;
+    }
+    
+    .form-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
     }
   </style>
 </head>
@@ -639,17 +381,6 @@
           <label for="rawLink">Paste tracking link (optional)</label>
           <textarea id="rawLink" placeholder="https://app.appsflyer.com/com.example.app?pid=source&af_siteid=123"></textarea>
         </div>
-        
-        <!-- Build from scratch option - DISABLED -->
-        <!-- <div class="form-group">
-          <button id="buildFromScratchBtn" class="btn-primary">Build Link from Scratch</button>
-          <div id="parameterSelector" class="parameter-selector" style="display: none;">
-            <div class="parameter-search">
-              <input type="text" id="searchParameters" placeholder="Search parameters...">
-            </div>
-            <div class="parameter-grid" id="parameterOptions"></div>
-          </div>
-        </div> -->
         
         <!-- Adjust Settings (hidden by default) -->
         <div id="adjustSettings" class="adjust-settings" style="display:none;">
@@ -795,33 +526,23 @@
     // Updated list of mandatory parameters
     const mandatoryParameters = [
       { key: "pid", description: "Media source (e.g., network or partner name)" },
-      { key: "af_siteid", description: "Publisher/site ID" },
+      { key: "clickid", description: "Click identifier from ad network" },
+      { key: "af_sub3", description: "Custom parameter (publisher id from Swaarm)" },
       { key: "c", description: "Campaign name" },
       { key: "af_c_id", description: "Campaign ID" },
+      { key: "af_siteid", description: "Publisher/site ID" },
+      { key: "af_sub_site", description: "Sub publisher site" },
       { key: "af_adset_id", description: "Ad set ID" },
       { key: "af_adset", description: "Ad set name" },
       { key: "af_ad_id", description: "Ad ID" },
       { key: "af_ad", description: "Ad name or creative" },
       { key: "af_channel", description: "Distribution channel (e.g., programmatic, UAC)" },
       { key: "deep_link_value", description: "In-app destination/deep link path" },
-      { key: "af_sub3", description: "Custom parameter (publisher id from Swaarm)" },
       { key: "af_sub1", description: "Custom parameter (used here for app name)" },
       { key: "af_click_lookback", description: "Click attribution lookback window (e.g., 7d)" },
-      { key: "af_ip", description: "User IP address" },
-      { key: "af_lang", description: "Device language" },
-      { key: "af_os", description: "Operating system name" },
-      { key: "af_ua", description: "User agent string" },
-      { key: "appname", description: "App name (custom macro)" },
-      { key: "clickid", description: "Click identifier from ad network" },
+      { key: "af_viewthrough_lookback", description: "View-through attribution lookback window" },
       { key: "advertising_id", description: "Google Advertising ID (GAID)" },
-      { key: "android_id", description: "Android device ID" },
       { key: "idfa", description: "iOS Advertising ID" },
-      { key: "md5_advertising_id", description: "MD5-hashed GAID" },
-      { key: "md5_android_id", description: "MD5-hashed Android ID" },
-      { key: "idfv", description: "iOS Identifier for Vendor" },
-      { key: "af_model", description: "Device model (e.g., iPhone 13, Pixel 5)" },
-      { key: "af_os_version", description: "OS version (e.g., iOS 17.3, Android 12)" },
-      { key: "imei", description: "Device IMEI (when available)" },
       { key: "af_prt", description: "Agency partner name (for agency attribution)" }
     ];
     
@@ -881,7 +602,6 @@
       cancelClear: document.getElementById('cancelClear'),
       confirmClear: document.getElementById('confirmClear'),
       themeToggle: document.getElementById('themeToggle'),
-      // New elements for parameter removal confirmation
       confirmParamRemovalModal: document.getElementById('confirmParamRemovalModal'),
       closeParamModal: document.getElementById('closeParamModal'),
       cancelRemoveParam: document.getElementById('cancelRemoveParam'),
@@ -1124,7 +844,7 @@
           state.rawLink = `https://view.adjust.com/{tracker_id}?pid={media_source}&c={campaign_name}`;
         }
       } else if (state.linkType === "OneLink" && state.platform === "Appsflyer") {
-        state.rawLink = `https://{subdomain}.onelink.me/{template_id}?pid={media_source}&c={campaign_name}`;
+        state.rawLink = `https://${state.subdomain}.onelink.me/${state.templateId}?pid={media_source}&c={campaign_name}`;
       }
       
       elements.rawLink.value = state.rawLink;
@@ -1209,8 +929,10 @@
     function loadSampleLink() {
       state.platform = "Appsflyer";
       state.linkType = "CTA";
+      state.appTrackerId = "{app_id}";
       state.subdomain = "{subdomain}";
       state.templateId = "{template_id}";
+      state.rawLink = "https://app.appsflyer.com/{app_id}?pid={media_source}&c={campaign_name}&af_prt={agency_name}";
       
       // Reset parameters to just the mandatory ones with empty values
       state.parameters = mandatoryParameters.map(param => ({ 
@@ -1585,15 +1307,6 @@
       const paramIndex = state.parameters.findIndex(p => p.id === id);
       
       if (paramIndex !== -1) {
-        const param = state.parameters[paramIndex];
-        const isMandatoryParam = mandatoryParameters.some(p => p.key === param.key);
-        
-        if (isMandatoryParam) {
-          // Don't allow removal of mandatory parameters
-          showToast('Mandatory parameters cannot be removed');
-          return;
-        }
-        
         // Set pending removal ID and show confirmation modal
         state.pendingRemovalId = id;
         elements.confirmParamRemovalModal.style.display = 'flex';
