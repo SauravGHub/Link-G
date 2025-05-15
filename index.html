@@ -122,8 +122,8 @@
           
           <div class="toggle-row">
             <div class="toggle-label">
-              <label for="prefixToggle">Add 'ad_' prefix to parameters</label>
-              <span class="info-icon">ℹ️<span class="tooltip">When enabled, all parameters that don't already have the 'ad_' prefix will automatically get it added.</span></span>
+              <label for="prefixToggle">Add 'adj_' prefix to parameters</label>
+              <span class="info-icon">ℹ️<span class="tooltip">When enabled, all parameters that don't already have the 'adj_' prefix will automatically get it added.</span></span>
             </div>
             <label class="switch">
               <input type="checkbox" id="prefixToggle">
@@ -769,7 +769,7 @@
           state.addRejectedCallback = state.rawLink.includes('adj_rejected_install_callback=');
           elements.rejectedCallbackToggle.checked = state.addRejectedCallback;
           
-          // Check if parameters have ad_ prefix
+          // Check if parameters have adj_ prefix
           const relevantParams = state.parameters.filter(p => 
             !p.key.startsWith('event_callback_') && 
             p.key !== 'tracker_limit' && 
@@ -777,7 +777,7 @@
           );
           
           if (relevantParams.length > 0) {
-            state.prefixParameters = relevantParams.every(param => param.key.startsWith('ad_'));
+            state.prefixParameters = relevantParams.every(param => param.key.startsWith('adj_'));
             elements.prefixToggle.checked = state.prefixParameters;
           }
         }
@@ -819,13 +819,13 @@
         
         // Apply Adjust-specific modifications
         if (state.platform === "Adjust") {
-          // Add ad_ prefix if enabled
+          // Add adj_ prefix if enabled
           if (state.prefixParameters) {
             processedParameters = processedParameters.map(param => {
-              if (!param.key.startsWith('ad_') && 
+              if (!param.key.startsWith('adj_') && 
                   param.key !== 'tracker_limit' && 
                   param.key !== 'adj_rejected_install_callback') {
-                return { ...param, key: `ad_${param.key}` };
+                return { ...param, key: `adj_${param.key}` };
               }
               return param;
             });
@@ -1171,7 +1171,7 @@
           );
           
           if (relevantParams.length > 0) {
-            state.prefixParameters = relevantParams.every(param => param.key.startsWith('ad_'));
+            state.prefixParameters = relevantParams.every(param => param.key.startsWith('adj_'));
           }
         }
         
