@@ -1,321 +1,55 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Link Genie - Tracking Link Builder</title>
   <style>
-    :root {
-      --primary: #0096FF;
-      --primary-hover: #007acc;
-      --secondary: #f3f4f6;
-      --secondary-hover: #e5e7eb;
-      --text: #1f2937;
-      --text-light: #6b7280;
-      --error: #ef4444;
-      --success: #10b981;
-      --border: #e5e7eb;
-      --background: #ffffff;
-      --background-alt: #f9fafb;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      line-height: 1.5;
-      color: var(--text);
-      background-color: var(--background-alt);
-      margin: 0;
-      padding: 0;
-    }
-
-    .dark-mode {
-      --primary: #0096FF;
-      --primary-hover: #33a6ff;
-      --secondary: #374151;
-      --secondary-hover: #4b5563;
-      --text: #f9fafb;
-      --text-light: #9ca3af;
-      --border: #4b5563;
-      --background: #111827;
-      --background-alt: #1f2937;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 1rem;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 0;
-      margin-bottom: 2rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .app-title {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: var(--primary);
-      margin: 0;
-    }
-
-    .tabs {
-      display: flex;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 1.5rem;
-    }
-
-    .tab {
-      padding: 0.5rem 1rem;
-      background: none;
-      border: none;
-      border-bottom: 2px solid transparent;
-      font-weight: 600;
-      cursor: pointer;
-      color: var(--text-light);
-      transition: all 0.2s ease;
-    }
-
-    .tab.active {
-      color: var(--primary);
-      border-bottom: 2px solid var(--primary);
-    }
-
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    .card {
-      background-color: var(--background);
-      border-radius: 0.5rem;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .form-group {
-      margin-bottom: 1.25rem;
-    }
-
-    .form-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .form-col {
-      flex: 1;
-      min-width: 250px;
-    }
-
-    label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      font-size: 0.875rem;
-    }
-
-    .platform-toggle {
-      display: flex;
-      border: 1px solid var(--border);
-      border-radius: 0.375rem;
-      overflow: hidden;
-      margin-bottom: 1rem;
-      width: fit-content;
-    }
-
-    .platform-btn {
-      padding: 0.5rem 1rem;
-      border: none;
-      background: var(--secondary);
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 0.875rem;
-    }
-
-    .platform-btn.active {
-      background-color: var(--primary);
-      color: white;
-    }
-
-    input, textarea, select {
-      width: 100%;
-      padding: 0.625rem;
-      font-size: 0.875rem;
-      border: 1px solid var(--border);
-      border-radius: 0.375rem;
-      background-color: var(--background);
-      color: var(--text);
-      box-sizing: border-box;
-    }
-
-    textarea {
-      font-family: monospace;
-      min-height: 100px;
-      resize: vertical;
-      white-space: pre;
-      overflow-wrap: normal;
-      overflow-x: auto;
-    }
-
-    button {
-      cursor: pointer;
-      padding: 0.625rem 1rem;
-      font-size: 0.875rem;
-      font-weight: 600;
-      border-radius: 0.375rem;
-      transition: all 0.2s ease;
-    }
-
-    .btn-primary {
-      background-color: var(--primary);
-      color: white;
-      border: none;
-    }
-
-    .btn-primary:hover {
-      background-color: var(--primary-hover);
-    }
-
-    .btn-outline {
-      background-color: transparent;
-      border: 1px solid var(--border);
-      color: var(--text);
-    }
-
-    .btn-outline:hover {
-      background-color: var(--secondary);
-    }
-
-    .toast {
-      position: fixed;
-      bottom: 1rem;
-      right: 1rem;
-      padding: 1rem;
-      background-color: var(--success);
-      color: white;
-      border-radius: 0.375rem;
-      font-weight: 600;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      z-index: 1000;
-      transition: all 0.3s ease;
-      transform: translateY(150%);
-      opacity: 0;
-    }
-
-    .toast.show {
-      transform: translateY(0);
-      opacity: 1;
-    }
-
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal-content {
-      background-color: var(--background);
-      padding: 2rem;
-      border-radius: 0.5rem;
-      max-width: 500px;
-      width: 90%;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-
-    .modal-title {
-      font-size: 1.25rem;
-      font-weight: 600;
-      margin: 0;
-    }
-
-    .close-modal {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-      color: var(--text-light);
-      padding: 0;
-    }
-
-    .close-modal:hover {
-      color: var(--text);
-    }
-
-    .parameters-list {
-      border: 1px solid var(--border);
-      border-radius: 0.375rem;
-      overflow-y: auto;
-      max-height: 400px;
-    }
-    
-    .parameters-header {
-      display: grid;
-      grid-template-columns: 1fr 1fr 40px;
-      gap: 0.5rem;
-      padding: 0.5rem;
-      font-weight: 600;
-      font-size: 0.75rem;
-      color: var(--text-light);
-      border-bottom: 1px solid var(--border);
-      background-color: var(--secondary);
-    }
-    
-    .parameter-item {
-      display: grid;
-      grid-template-columns: 1fr 1fr 40px;
-      gap: 0.5rem;
-      padding: 0.5rem;
-      border-bottom: 1px solid var(--border);
-      align-items: center;
-    }
-    
-    .parameter-item:last-child {
-      border-bottom: none;
-    }
-    
-    .parameter-item input {
-      padding: 0.25rem 0.5rem;
-      font-size: 0.75rem;
-      height: 2rem;
-    }
-    
-    .form-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.5rem;
-    }
+    :root {--primary: #0096FF;--primary-hover: #007acc;--secondary: #f3f4f6;--secondary-hover: #e5e7eb;--text: #1f2937;--text-light: #6b7280;--error: #ef4444;--success: #10b981;--border: #e5e7eb;--background: #ffffff;--background-alt: #f9fafb;}
+    body {font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;line-height: 1.5;color: var(--text);background-color: var(--background-alt);margin: 0;padding: 0;}
+    .dark-mode {--primary: #0096FF;--primary-hover: #33a6ff;--secondary: #374151;--secondary-hover: #4b5563;--text: #f9fafb;--text-light: #9ca3af;--border: #4b5563;--background: #111827;--background-alt: #1f2937;}
+    .container {max-width: 1200px;margin: 0 auto;padding: 1rem;}
+    header {display: flex;justify-content: space-between;align-items: center;padding: 1rem 0;margin-bottom: 2rem;border-bottom: 1px solid var(--border);}
+    .app-title {font-size: 1.5rem;font-weight: bold;color: var(--primary);margin: 0;}
+    .tabs {display: flex;border-bottom: 1px solid var(--border);margin-bottom: 1.5rem;}
+    .tab {padding: 0.5rem 1rem;background: none;border: none;border-bottom: 2px solid transparent;font-weight: 600;cursor: pointer;color: var(--text-light);transition: all 0.2s ease;}
+    .tab.active {color: var(--primary);border-bottom: 2px solid var(--primary);}
+    .tab-content {display: none;}
+    .tab-content.active {display: block;}
+    .card {background-color: var(--background);border-radius: 0.5rem;box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);padding: 1.5rem;margin-bottom: 1.5rem;}
+    .form-group {margin-bottom: 1.25rem;}
+    .form-row {display: flex;flex-wrap: wrap;gap: 1rem;margin-bottom: 1rem;}
+    .form-col {flex: 1;min-width: 250px;}
+    label {display: block;font-weight: 600;margin-bottom: 0.5rem;font-size: 0.875rem;}
+    .platform-toggle {display: flex;border: 1px solid var(--border);border-radius: 0.375rem;overflow: hidden;margin-bottom: 1rem;width: fit-content;}
+    .platform-btn {padding: 0.5rem 1rem;border: none;background: var(--secondary);font-weight: 600;cursor: pointer;font-size: 0.875rem;}
+    .platform-btn.active {background-color: var(--primary);color: white;}
+    input, textarea, select {width: 100%;padding: 0.625rem;font-size: 0.875rem;border: 1px solid var(--border);border-radius: 0.375rem;background-color: var(--background);color: var(--text);box-sizing: border-box;}
+    textarea {font-family: monospace;min-height: 100px;resize: vertical;white-space: pre;overflow-wrap: normal;overflow-x: auto;}
+    button {cursor: pointer;padding: 0.625rem 1rem;font-size: 0.875rem;font-weight: 600;border-radius: 0.375rem;transition: all 0.2s ease;}
+    .btn-primary {background-color: var(--primary);color: white;border: none;}
+    .btn-primary:hover {background-color: var(--primary-hover);}
+    .btn-outline {background-color: transparent;border: 1px solid var(--border);color: var(--text);}
+    .btn-outline:hover {background-color: var(--secondary);}
+    .toast {position: fixed;bottom: 1rem;right: 1rem;padding: 1rem;background-color: var(--success);color: white;border-radius: 0.375rem;font-weight: 600;box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);z-index: 1000;transition: all 0.3s ease;transform: translateY(150%);opacity: 0;}
+    .toast.show {transform: translateY(0);opacity: 1;}
+    .modal {display: none;position: fixed;top: 0;left: 0;width: 100%;height: 100%;background-color: rgba(0, 0, 0, 0.5);z-index: 1000;align-items: center;justify-content: center;}
+    .modal-content {background-color: var(--background);padding: 2rem;border-radius: 0.5rem;max-width: 500px;width: 90%;box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);}
+    .modal-header {display: flex;justify-content: space-between;align-items: center;margin-bottom: 1rem;}
+    .modal-title {font-size: 1.25rem;font-weight: 600;margin: 0;}
+    .close-modal {background: none;border: none;font-size: 1.5rem;cursor: pointer;color: var(--text-light);padding: 0;}
+    .close-modal:hover {color: var(--text);}
+    .parameters-list {border: 1px solid var(--border);border-radius: 0.375rem;overflow-y: auto;max-height: 400px;}
+    .parameters-header {display: grid;grid-template-columns: 1fr 1fr 40px;gap: 0.5rem;padding: 0.5rem;font-weight: 600;font-size: 0.75rem;color: var(--text-light);border-bottom: 1px solid var(--border);background-color: var(--secondary);}
+    .parameter-item {display: grid;grid-template-columns: 1fr 1fr 40px;gap: 0.5rem;padding: 0.5rem;border-bottom: 1px solid var(--border);align-items: center;}
+    .parameter-item:last-child {border-bottom: none;}
+    .parameter-item input {padding: 0.25rem 0.5rem;font-size: 0.75rem;height: 2rem;}
+    .form-header {display: flex;justify-content: space-between;align-items: center;margin-bottom: 0.5rem;}
   </style>
 </head>
 <body>
   <div class="container">
-    <header>
-      <h1 class="app-title">Link Genie</h1>
-      <button class="theme-toggle" id="themeToggle">🌙</button>
-    </header>
+    <header><h1 class="app-title">Link Genie</h1><button class="theme-toggle" id="themeToggle">🌙</button></header>
     
     <div class="tabs">
       <button class="tab active" data-tab="builder">Builder</button>
@@ -324,7 +58,7 @@
     
     <div id="builder" class="tab-content active">
       <div class="card">
-        <!-- Link Preview (moved to top) -->
+        <!-- Link Preview -->
         <div class="form-group">
           <label>Link Preview</label>
           <div class="link-preview" id="linkPreview"></div>
@@ -389,9 +123,7 @@
           <div class="toggle-row">
             <div class="toggle-label">
               <label for="prefixToggle">Add 'ad_' prefix to parameters</label>
-              <span class="info-icon">ℹ️
-                <span class="tooltip">When enabled, all parameters that don't already have the 'ad_' prefix will automatically get it added.</span>
-              </span>
+              <span class="info-icon">ℹ️<span class="tooltip">When enabled, all parameters that don't already have the 'ad_' prefix will automatically get it added.</span></span>
             </div>
             <label class="switch">
               <input type="checkbox" id="prefixToggle">
@@ -402,9 +134,7 @@
           <div class="toggle-row">
             <div class="toggle-label">
               <label for="trackerLimitToggle">Add tracker limit (250,000)</label>
-              <span class="info-icon">ℹ️
-                <span class="tooltip">Automatically adds the parameter tracker_limit=250000 to your link.</span>
-              </span>
+              <span class="info-icon">ℹ️<span class="tooltip">Automatically adds the parameter tracker_limit=250000 to your link.</span></span>
             </div>
             <label class="switch">
               <input type="checkbox" id="trackerLimitToggle">
@@ -415,9 +145,7 @@
           <div class="toggle-row">
             <div class="toggle-label">
               <label for="rejectedCallbackToggle">Add rejected install callback</label>
-              <span class="info-icon">ℹ️
-                <span class="tooltip">Adds a rejected install callback with the format: adj_rejected_install_callback=cpp_rcb{id}&rejection_reason={rejection_reason}</span>
-              </span>
+              <span class="info-icon">ℹ️<span class="tooltip">Adds a rejected install callback with the format: adj_rejected_install_callback=cpp_rcb{id}&rejection_reason={rejection_reason}</span></span>
             </div>
             <label class="switch">
               <input type="checkbox" id="rejectedCallbackToggle">
@@ -435,9 +163,7 @@
           
           <div class="parameters-list">
             <div class="parameters-header">
-              <div>Key</div>
-              <div>Value</div>
-              <div></div>
+              <div>Key</div><div>Value</div><div></div>
             </div>
             <div id="parametersList"></div>
           </div>
@@ -452,8 +178,7 @@
           
           <div class="parameters-list">
             <div class="parameters-header">
-              <div>Token</div>
-              <div></div>
+              <div>Token</div><div></div>
             </div>
             <div id="eventTokensList"></div>
           </div>
@@ -548,24 +273,10 @@
     
     // State management
     const state = {
-      platform: "Appsflyer",
-      linkType: "CTA",
-      appTrackerId: "",
-      rawLink: "",
-      subdomain: "", // For OneLink
-      templateId: "", // For OneLink
-      // Initialize with the mandatory parameters list
+      platform: "Appsflyer", linkType: "CTA", appTrackerId: "", rawLink: "", subdomain: "", templateId: "",
       parameters: mandatoryParameters.map(param => ({ id: generateId(), key: param.key, value: "" })),
-      eventTokens: [],
-      prefixParameters: false,
-      addTrackerLimit: false,
-      addRejectedCallback: false,
-      finalLink: "",
-      linkName: "",
-      links: [],
-      linkCounter: 1, // For automatic link numbering
-      theme: "light",
-      pendingRemovalId: null // To track which parameter is pending removal
+      eventTokens: [], prefixParameters: false, addTrackerLimit: false, addRejectedCallback: false,
+      finalLink: "", linkName: "", links: [], linkCounter: 1, theme: "light", pendingRemovalId: null
     };
 
     // DOM elements
@@ -679,8 +390,6 @@
       elements.appTrackerId.addEventListener('input', (e) => {
         state.appTrackerId = e.target.value;
         updateFinalLink();
-        
-        // Auto-generate link name when app id changes
         generateLinkName();
       });
       
@@ -701,8 +410,6 @@
         state.rawLink = e.target.value;
         if (state.rawLink.includes('http')) {
           parseRawLink();
-          
-          // Auto-generate link name after parsing
           generateLinkName();
         }
       });
@@ -858,12 +565,8 @@
       
       // Find values from parameters
       state.parameters.forEach(param => {
-        if (param.key === 'pid') {
-          mediaSource = param.value;
-        }
-        if (param.key === 'af_sub3') {
-          sub3Value = param.value;
-        }
+        if (param.key === 'pid') mediaSource = param.value;
+        if (param.key === 'af_sub3') sub3Value = param.value;
       });
       
       // Clean up values
@@ -873,19 +576,9 @@
       
       // Generate name
       let name = `#${state.linkCounter}`;
-      
-      if (appId) {
-        name += ` - ${appId}`;
-      }
-      
-      if (mediaSource) {
-        name += ` - ${mediaSource}`;
-      }
-      
-      if (sub3Value) {
-        name += ` - ${sub3Value}`;
-      }
-      
+      if (appId) name += ` - ${appId}`;
+      if (mediaSource) name += ` - ${mediaSource}`;
+      if (sub3Value) name += ` - ${sub3Value}`;
       name += ` ${state.linkType}`;
       
       state.linkName = name;
@@ -936,9 +629,7 @@
       
       // Reset parameters to just the mandatory ones with empty values
       state.parameters = mandatoryParameters.map(param => ({ 
-        id: generateId(), 
-        key: param.key, 
-        value: "" 
+        id: generateId(), key: param.key, value: "" 
       }));
       
       state.eventTokens = [];
@@ -1134,10 +825,7 @@
               if (!param.key.startsWith('ad_') && 
                   param.key !== 'tracker_limit' && 
                   param.key !== 'adj_rejected_install_callback') {
-                return {
-                  ...param,
-                  key: `ad_${param.key}`
-                };
+                return { ...param, key: `ad_${param.key}` };
               }
               return param;
             });
@@ -1146,9 +834,7 @@
           // Add tracker_limit parameter if enabled
           if (state.addTrackerLimit && !processedParameters.some(p => p.key === 'tracker_limit')) {
             processedParameters.push({
-              id: generateId(),
-              key: 'tracker_limit',
-              value: '250000'
+              id: generateId(), key: 'tracker_limit', value: '250000'
             });
           }
           
@@ -1290,12 +976,7 @@
     
     // Add parameter
     function addParameter(key, value) {
-      const param = {
-        id: generateId(),
-        key: key,
-        value: value
-      };
-      
+      const param = {id: generateId(), key: key, value: value};
       state.parameters.push(param);
       renderParametersList();
       updateFinalLink();
@@ -1315,11 +996,7 @@
     
     // Add event token
     function addEventToken(token) {
-      const event = {
-        id: generateId(),
-        token: token
-      };
-      
+      const event = {id: generateId(), token: token};
       state.eventTokens.push(event);
       renderEventTokensList();
       updateFinalLink();
@@ -1484,13 +1161,9 @@
         
         // Check for Adjust settings
         if (state.platform === 'Adjust') {
-          // Check for tracker_limit
           state.addTrackerLimit = link.finalLink.includes('tracker_limit=250000');
-          
-          // Check for rejected callback
           state.addRejectedCallback = link.finalLink.includes('adj_rejected_install_callback=');
           
-          // Check if parameters have ad_ prefix
           const relevantParams = link.parameters.filter(p => 
             !p.key.startsWith('event_callback_') && 
             p.key !== 'tracker_limit' && 
@@ -1534,10 +1207,7 @@
     function showToast(message) {
       elements.toast.textContent = message;
       elements.toast.classList.add('show');
-      
-      setTimeout(() => {
-        elements.toast.classList.remove('show');
-      }, 3000);
+      setTimeout(() => { elements.toast.classList.remove('show'); }, 3000);
     }
     
     // Toggle theme
@@ -1566,14 +1236,12 @@
         theme: state.theme,
         linkCounter: state.linkCounter
       };
-      
       localStorage.setItem('linkGenie', JSON.stringify(data));
     }
     
     // Load from localStorage
     function loadFromLocalStorage() {
       const data = localStorage.getItem('linkGenie');
-      
       if (data) {
         const parsed = JSON.parse(data);
         state.links = parsed.links || [];
@@ -1583,15 +1251,10 @@
     }
     
     // Helper: Generate ID
-    function generateId() {
-      return Math.random().toString(36).substring(2, 15);
-    }
+    function generateId() { return Math.random().toString(36).substring(2, 15); }
     
     // Helper: Format date
-    function formatDate(timestamp) {
-      const date = new Date(timestamp);
-      return date.toLocaleString();
-    }
+    function formatDate(timestamp) { return new Date(timestamp).toLocaleString(); }
     
     // Helper: Escape HTML
     function escapeHtml(unsafe) {
