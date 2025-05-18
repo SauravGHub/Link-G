@@ -1,12 +1,13 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Link Genie - Tracking Link Builder</title>
+  <!-- Add Sortable.js for drag and drop functionality -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
   <style>
     :root {
-      --primary: #064d80;
+      --primary: #0096FF;
       --primary-hover: #007acc;
       --secondary: #f3f4f6;
       --secondary-hover: #e5e7eb;
@@ -49,6 +50,29 @@
       padding: 1rem 0;
       margin-bottom: 2rem;
       border-bottom: 1px solid var(--border);
+    }.link-preview {
+      background-color: var(--secondary);
+      border-radius: 0.375rem;
+      padding: 0.75rem;
+      font-family: monospace;
+      font-size: 0.875rem;
+      white-space: pre-wrap;
+      word-break: break-all;
+      overflow-x: auto;
+      color: var(--text);
+      min-height: 80px;
+      cursor: text;
+      outline: none;
+    }
+    .link-preview:focus {
+      border: 1px solid var(--primary);
+      box-shadow: 0 0 0 2px rgba(0, 150, 255, 0.1);
+    }
+    .link-preview-help {
+      color: var(--text-light);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      font-style: italic;
     }
     .app-title {
       font-size: 1.5rem;
@@ -244,7 +268,7 @@
     }
     .parameters-header {
       display: grid;
-      grid-template-columns: 1fr 1fr 40px;
+      grid-template-columns: 30px 1fr 1fr 40px;
       gap: 0.5rem;
       padding: 0.5rem;
       font-weight: 600;
@@ -255,7 +279,7 @@
     }
     .parameter-item {
       display: grid;
-      grid-template-columns: 1fr 1fr 40px;
+      grid-template-columns: 30px 1fr 1fr 40px;
       gap: 0.5rem;
       padding: 0.5rem;
       border-bottom: 1px solid var(--border);
@@ -269,88 +293,27 @@
       font-size: 0.75rem;
       height: 2rem;
     }
-    .form-header {
+    .drag-handle {
+      cursor: grab;
+      color: var(--text-light);
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 0.5rem;
+      justify-content: center;
+      font-size: 1.25rem;
+      opacity: 0.5;
+      transition: opacity 0.2s;
+      padding: 0.25rem;
     }
-    .link-preview {
-      background-color: var(--secondary);
-      border-radius: 0.375rem;
-      padding: 0.75rem;
-      font-family: monospace;
-      font-size: 0.875rem;
-      white-space: pre-wrap;
-      word-break: break-all;
-      overflow-x: auto;
-      color: var(--text);
-      min-height: 80px;
-      cursor: text;
-      outline: none;
+    .parameter-item:hover .drag-handle {
+      opacity: 1;
     }
-    .link-preview:focus {
-      border: 1px solid var(--primary);
-      box-shadow: 0 0 0 2px rgba(0, 150, 255, 0.1);
+    .parameter-item.sortable-ghost {
+      opacity: 0.4;
+      background-color: var(--primary);
     }
-    .link-preview-help {
-      color: var(--text-light);
-      font-size: 0.75rem;
-      margin-top: 0.25rem;
-      font-style: italic;
-    }
-    /* New styles for history items */
-    .history-item {
+    .parameter-item.sortable-chosen {
       background-color: var(--background);
-      border-radius: 0.5rem;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      padding: 1rem;
-      margin-bottom: 1rem;
-      border: 1px solid var(--border);
-    }
-    .history-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.5rem;
-    }
-    .history-title {
-      font-size: 1rem;
-      font-weight: 600;
-      margin: 0;
-      color: var(--primary);
-    }
-    .action-row {
-      display: flex;
-      gap: 0.5rem;
-    }
-    .btn-sm {
-      padding: 0.25rem 0.5rem;
-      font-size: 0.75rem;
-    }
-    .history-meta {
-      font-size: 0.75rem;
-      color: var(--text-light);
-      margin-bottom: 0.5rem;
-    }
-    .history-link {
-      background-color: var(--secondary);
-      border-radius: 0.375rem;
-      padding: 0.5rem;
-      font-family: monospace;
-      font-size: 0.75rem;
-      word-break: break-all;
-      color: var(--text);
-      margin-top: 0.5rem;
-    }
-    .empty-state {
-      background-color: var(--background);
-      border-radius: 0.5rem;
-      padding: 2rem;
-      text-align: center;
-      color: var(--text-light);
-      font-style: italic;
-      border: 1px dashed var(--border);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
   </style>
 </head>
@@ -368,17 +331,21 @@
         <!-- Link Preview - Now editable -->
         <div class="form-group">
           <label>Link Preview</label>
-          <div class="link-preview" id="linkPreview" contenteditable="true"></div>
+          <div class="link-preview" id="linkPreview"></div>
           <div class="link-preview-help">Paste a tracking link here to analyze and edit it, or build one from scratch below</div>
           <div class="form-row" style="justify-content: flex-end; margin-top: 0.5rem;">
             <button class="btn-outline btn-sm" id="resetBtn">Reset to Sample</button>
+            <button class="btn-outline btn-sm" id="copyLinkBtn" style="margin-left: 0.5rem;">
+              <span style="display: inline-flex; align-items: center;">
+                Copy Link
+              </span>
+            </button>
           </div>
         </div>
         
         <div class="form-group">
           <div class="platform-toggle">
             <button class="platform-btn active" data-platform="Appsflyer">Appsflyer</button>
-           <!-- <button class="platform-btn" data-platform="Adjust">Adjust</button> -->
           </div>
         </div>
         
@@ -419,44 +386,6 @@
           </div>
         </div>
         
-        <!-- Adjust Settings (hidden by default) -->
-        <div id="adjustSettings" class="adjust-settings" style="display:none;">
-          <h3 style="margin-top: 0;">Adjust Settings</h3>
-          
-          <div class="toggle-row">
-            <div class="toggle-label">
-              <label for="prefixToggle">Add 'ad_' prefix to parameters</label>
-              <span class="info-icon">ℹ️<span class="tooltip">When enabled, all parameters that don't already have the 'ad_' prefix will automatically get it added.</span></span>
-            </div>
-            <label class="switch">
-              <input type="checkbox" id="prefixToggle">
-              <span class="slider"></span>
-            </label>
-          </div>
-          
-          <div class="toggle-row">
-            <div class="toggle-label">
-              <label for="trackerLimitToggle">Add tracker limit (250,000)</label>
-              <span class="info-icon">ℹ️<span class="tooltip">Automatically adds the parameter tracker_limit=250000 to your link.</span></span>
-            </div>
-            <label class="switch">
-              <input type="checkbox" id="trackerLimitToggle">
-              <span class="slider"></span>
-            </label>
-          </div>
-          
-          <div class="toggle-row">
-            <div class="toggle-label">
-              <label for="rejectedCallbackToggle">Add rejected install callback</label>
-              <span class="info-icon">ℹ️<span class="tooltip">Adds a rejected install callback with the format: adj_rejected_install_callback=cpp_rcb{id}&rejection_reason={rejection_reason}</span></span>
-            </div>
-            <label class="switch">
-              <input type="checkbox" id="rejectedCallbackToggle">
-              <span class="slider"></span>
-            </label>
-          </div>
-        </div>
-        
         <!-- Parameters Section with mandatory parameters -->
         <div class="form-group">
           <div class="form-header">
@@ -466,24 +395,12 @@
           
           <div class="parameters-list">
             <div class="parameters-header">
-              <div>Key</div><div>Value</div><div></div>
+              <div></div>
+              <div>Key</div>
+              <div>Value</div>
+              <div></div>
             </div>
             <div id="parametersList"></div>
-          </div>
-        </div>
-        
-        <!-- Event Tokens Section (for Adjust) -->
-        <div id="eventTokensSection" class="form-group" style="display:none;">
-          <div class="form-header">
-            <label>Event Tokens</label>
-            <button class="btn-primary btn-sm" id="addEventBtn">+ Add Event Token</button>
-          </div>
-          
-          <div class="parameters-list">
-            <div class="parameters-header">
-              <div>Token</div><div></div>
-            </div>
-            <div id="eventTokensList"></div>
           </div>
         </div>
         
@@ -580,8 +497,8 @@
     const state = {
       platform: "Appsflyer", linkType: "CTA", appTrackerId: "", subdomain: "", templateId: "",
       parameters: mandatoryParameters.map(param => ({ id: generateId(), key: param.key, value: "" })),
-      eventTokens: [], prefixParameters: false, addTrackerLimit: false, addRejectedCallback: false,
-      finalLink: "", linkName: "", links: [], linkCounter: 1, theme: "light", pendingRemovalId: null
+      finalLink: "", linkName: "", links: [], linkCounter: 1, theme: "light", pendingRemovalId: null,
+      processingUpdate: false
     };
 
     // DOM elements
@@ -593,19 +510,13 @@
       oneLinkFields: document.getElementById('oneLinkFields'),
       subdomain: document.getElementById('subdomain'),
       templateId: document.getElementById('templateId'),
-      adjustSettings: document.getElementById('adjustSettings'),
-      prefixToggle: document.getElementById('prefixToggle'),
-      trackerLimitToggle: document.getElementById('trackerLimitToggle'),
-      rejectedCallbackToggle: document.getElementById('rejectedCallbackToggle'),
       parametersList: document.getElementById('parametersList'),
       addParamBtn: document.getElementById('addParamBtn'),
-      eventTokensSection: document.getElementById('eventTokensSection'),
-      eventTokensList: document.getElementById('eventTokensList'),
-      addEventBtn: document.getElementById('addEventBtn'),
       linkPreview: document.getElementById('linkPreview'),
       linkName: document.getElementById('linkName'),
       saveBtn: document.getElementById('saveBtn'),
       resetBtn: document.getElementById('resetBtn'),
+      copyLinkBtn: document.getElementById('copyLinkBtn'),
       tabs: document.querySelectorAll('.tab'),
       tabContents: document.querySelectorAll('.tab-content'),
       searchLinks: document.getElementById('searchLinks'),
@@ -650,22 +561,42 @@
     function setupEventListeners() {
       // Link preview paste and input events
       elements.linkPreview.addEventListener('paste', (e) => {
-        // Let the paste happen naturally, then process it
-        setTimeout(() => {
-          const pastedLink = elements.linkPreview.textContent.trim();
-          if (pastedLink && pastedLink.includes('http')) {
-            parseLink(pastedLink);
-          }
-        }, 10);
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData('text');
+        
+        if (text && text.includes('http')) {
+          elements.linkPreview.textContent = text;
+          parseLink(text);
+        }
       });
       
-      // Handle direct editing in the link preview
+      // Make linkPreview clickable to focus and allow editing
+      elements.linkPreview.addEventListener('click', function() {
+        this.focus();
+      });
+      
+      // Handle direct editing in the link preview (with improved debounce)
       elements.linkPreview.addEventListener('input', debounce(() => {
         const editedLink = elements.linkPreview.textContent.trim();
         if (editedLink && !state.processingUpdate) {
           state.finalLink = editedLink;
+          
+          // Try to parse the link if it looks like a URL
+          if (editedLink.startsWith('http') && !state.processingUpdate) {
+            parseLink(editedLink);
+          }
         }
-      }, 300));
+      }, 500));
+      
+      // Copy link button
+      elements.copyLinkBtn.addEventListener('click', () => {
+        const linkText = elements.linkPreview.textContent;
+        if (linkText) {
+          navigator.clipboard.writeText(linkText)
+            .then(() => showToast('Link copied to clipboard'))
+            .catch(() => showToast('Failed to copy link', true));
+        }
+      });
       
       // Platform toggle
       elements.platformButtons.forEach(btn => {
@@ -728,30 +659,9 @@
         updateFinalLink();
       });
       
-      // Adjust settings toggles
-      elements.prefixToggle.addEventListener('change', (e) => {
-        state.prefixParameters = e.target.checked;
-        updateFinalLink();
-      });
-      
-      elements.trackerLimitToggle.addEventListener('change', (e) => {
-        state.addTrackerLimit = e.target.checked;
-        updateFinalLink();
-      });
-      
-      elements.rejectedCallbackToggle.addEventListener('change', (e) => {
-        state.addRejectedCallback = e.target.checked;
-        updateFinalLink();
-      });
-      
       // Add parameter button
       elements.addParamBtn.addEventListener('click', () => {
         addParameter('', ''); // Add a blank parameter row
-      });
-      
-      // Add event token button
-      elements.addEventBtn.addEventListener('click', () => {
-        addEventToken('');
       });
       
       // Save link button
@@ -889,21 +799,6 @@
           
           elements.subdomain.value = state.subdomain;
           elements.templateId.value = state.templateId;
-        } else if (url.hostname.includes('adjust.com')) {
-          state.platform = 'Adjust';
-          
-          // Check if it's a CTA (app) or VTA (view) link
-          if (url.hostname.includes('view')) {
-            state.linkType = 'VTA';
-          } else {
-            state.linkType = 'CTA';
-          }
-          
-          // Extract tracker ID from path
-          const pathParts = url.pathname.split('/');
-          if (pathParts.length > 1) {
-            state.appTrackerId = pathParts[1];
-          }
         }
         
         // Update platform buttons
@@ -919,61 +814,23 @@
         // Extract parameters
         const params = new URLSearchParams(url.search);
         const newParams = [];
-        const newEventTokens = [];
         
         params.forEach((value, key) => {
-          if (key.startsWith('event_callback_')) {
-            // Event token for Adjust
-            const token = key.replace('event_callback_', '');
-            newEventTokens.push({
-              id: generateId(),
-              token: token
-            });
-          } else {
-            newParams.push({
-              id: generateId(),
-              key: key,
-              value: value
-            });
-          }
+          newParams.push({
+            id: generateId(),
+            key: key,
+            value: value
+          });
         });
         
         if (newParams.length > 0) {
           state.parameters = newParams;
         }
         
-        if (newEventTokens.length > 0) {
-          state.eventTokens = newEventTokens;
-        }
-        
-        // Check for Adjust specific settings
-        if (state.platform === 'Adjust') {
-          // Check for tracker_limit
-          state.addTrackerLimit = link.includes('tracker_limit=250000');
-          elements.trackerLimitToggle.checked = state.addTrackerLimit;
-          
-          // Check for rejected callback
-          state.addRejectedCallback = link.includes('adj_rejected_install_callback=');
-          elements.rejectedCallbackToggle.checked = state.addRejectedCallback;
-          
-          // Check if parameters have ad_ prefix
-          const relevantParams = state.parameters.filter(p => 
-            !p.key.startsWith('event_callback_') && 
-            p.key !== 'tracker_limit' && 
-            p.key !== 'adj_rejected_install_callback'
-          );
-          
-          if (relevantParams.length > 0) {
-            state.prefixParameters = relevantParams.every(param => param.key.startsWith('ad_'));
-            elements.prefixToggle.checked = state.prefixParameters;
-          }
-        }
-        
         // Update UI
         elements.appTrackerId.value = state.appTrackerId;
         updateUIBasedOnPlatform();
         renderParametersList();
-        renderEventTokensList();
         updateFinalLink();
         
         // Generate link name
@@ -993,24 +850,24 @@
       let templateLink = "";
       
       if (state.linkType === "CTA") {
-        if (state.platform === "Appsflyer") {
-          templateLink = `https://app.appsflyer.com/${state.appTrackerId || "{app_id}"}?pid={media_source}&c={campaign_name}`;
-        } else {
-          templateLink = `https://app.adjust.com/${state.appTrackerId || "{tracker_id}"}?pid={media_source}&c={campaign_name}`;
-        }
+        templateLink = `https://app.appsflyer.com/${state.appTrackerId || "{app_id}"}?pid={media_source}&c={campaign_name}`;
       } else if (state.linkType === "VTA") {
-        if (state.platform === "Appsflyer") {
-          templateLink = `https://impression.appsflyer.com/${state.appTrackerId || "{app_id}"}?pid={media_source}&c={campaign_name}`;
-        } else {
-          templateLink = `https://view.adjust.com/${state.appTrackerId || "{tracker_id}"}?pid={media_source}&c={campaign_name}`;
-        }
-      } else if (state.linkType === "OneLink" && state.platform === "Appsflyer") {
+        templateLink = `https://impression.appsflyer.com/${state.appTrackerId || "{app_id}"}?pid={media_source}&c={campaign_name}`;
+      } else if (state.linkType === "OneLink") {
         const sub = state.subdomain || "{subdomain}";
         const tid = state.templateId || "{template_id}";
         templateLink = `https://${sub}.onelink.me/${tid}?pid={media_source}&c={campaign_name}`;
       }
       
       state.finalLink = templateLink;
+      refreshLinkPreview();
+    }
+    
+    // Refresh the link preview element with the current finalLink
+    function refreshLinkPreview() {
+      if (elements.linkPreview) {
+        elements.linkPreview.textContent = state.finalLink;
+      }
     }
     
     // Generate link name based on parameters
@@ -1043,25 +900,8 @@
     
     // Update UI based on selected platform
     function updateUIBasedOnPlatform() {
-      if (state.platform === 'Appsflyer') {
-        elements.appTrackerIdLabel.textContent = 'App ID';
-        elements.appTrackerId.placeholder = 'com.example.app';
-        elements.adjustSettings.style.display = 'none';
-        elements.eventTokensSection.style.display = 'none';
-        
-        // Show OneLink option only for Appsflyer
-        document.querySelector('.platform-btn[data-type="OneLink"]').style.display = 'block';
-      } else {
-        elements.appTrackerIdLabel.textContent = 'Tracker ID';
-        elements.appTrackerId.placeholder = '1nxc2xqx';
-        elements.adjustSettings.style.display = 'block';
-        elements.eventTokensSection.style.display = 'block';
-        
-        // Hide OneLink option for Adjust
-        document.querySelector('.platform-btn[data-type="OneLink"]').style.display = 'none';
-        // Hide OneLink fields if they were visible
-        elements.oneLinkFields.style.display = 'none';
-      }
+      elements.appTrackerIdLabel.textContent = 'App ID';
+      elements.appTrackerId.placeholder = 'com.example.app';
       
       // Update OneLink fields visibility
       if (state.platform === 'Appsflyer' && state.linkType === 'OneLink') {
@@ -1082,11 +922,6 @@
         id: generateId(), key: param.key, value: "" 
       }));
       
-      state.eventTokens = [];
-      state.prefixParameters = false;
-      state.addTrackerLimit = false;
-      state.addRejectedCallback = false;
-      
       // Generate link name
       generateLinkName();
       
@@ -1102,14 +937,10 @@
       elements.appTrackerId.value = state.appTrackerId;
       elements.subdomain.value = state.subdomain;
       elements.templateId.value = state.templateId;
-      elements.prefixToggle.checked = state.prefixParameters;
-      elements.trackerLimitToggle.checked = state.addTrackerLimit;
-      elements.rejectedCallbackToggle.checked = state.addRejectedCallback;
       elements.linkName.value = state.linkName;
       
       updateUIBasedOnPlatform();
       renderParametersList();
-      renderEventTokensList();
       updateFinalLink();
       
       showToast('Sample link loaded');
@@ -1129,92 +960,46 @@
           } else if (state.linkType === "OneLink") {
             baseUrl = `https://${state.subdomain}.onelink.me/${state.templateId}`;
           }
-        } else if (state.platform === "Adjust") {
-          if (state.linkType === "CTA") {
-            baseUrl = `https://app.adjust.com/${state.appTrackerId}`;
-          } else if (state.linkType === "VTA") {
-            baseUrl = `https://view.adjust.com/${state.appTrackerId}`;
-          }
         }
         
         const searchParams = new URLSearchParams();
-        let processedParameters = [...state.parameters];
-        
-        // Apply Adjust-specific modifications
-        if (state.platform === "Adjust") {
-          // Add ad_ prefix if enabled
-          if (state.prefixParameters) {
-            processedParameters = processedParameters.map(param => {
-              if (!param.key.startsWith('ad_') && 
-                  param.key !== 'tracker_limit' && 
-                  param.key !== 'adj_rejected_install_callback') {
-                return { ...param, key: `ad_${param.key}` };
-              }
-              return param;
-            });
-          }
-          
-          // Add tracker_limit parameter if enabled
-          if (state.addTrackerLimit && !processedParameters.some(p => p.key === 'tracker_limit')) {
-            processedParameters.push({
-              id: generateId(), key: 'tracker_limit', value: '250000'
-            });
-          }
-          
-          // Add rejected install callback if enabled
-          if (state.addRejectedCallback && !processedParameters.some(p => p.key === 'adj_rejected_install_callback')) {
-            processedParameters.push({
-              id: generateId(),
-              key: 'adj_rejected_install_callback',
-              value: `cpp_rcb0&rejection_reason={rejection_reason}`
-            });
-          }
-        }
         
         // Add parameters
-        processedParameters.forEach(param => {
+        state.parameters.forEach(param => {
           if (param.key && param.value) {
             searchParams.append(param.key, param.value);
           }
         });
         
-        // Add event tokens for Adjust
-        if (state.platform === "Adjust" && state.eventTokens.length > 0) {
-          state.eventTokens.forEach((et, index) => {
-            if (et.token) {
-              searchParams.append(
-                `event_callback_${et.token}`,
-                `cpp_icb${index}&event_id=${et.token}`
-              );
-            }
-          });
-        }
-        
         const queryString = searchParams.toString();
         const finalLink = queryString ? `${baseUrl}?${decodeURIComponent(queryString)}` : baseUrl;
         
         state.finalLink = finalLink;
-        elements.linkPreview.textContent = finalLink;
+        refreshLinkPreview();
       } catch (error) {
         console.error("Error generating final link:", error);
-        elements.linkPreview.textContent = "Error generating link";
+        if (elements.linkPreview) {
+          elements.linkPreview.textContent = "Error generating link";
+        }
       } finally {
         state.processingUpdate = false;
       }
     }
     
-    // Render parameters list with confirmation before removal
+    // Render parameters list with drag and drop functionality
     function renderParametersList() {
       elements.parametersList.innerHTML = '';
       
       state.parameters.forEach(param => {
         const paramItem = document.createElement('div');
         paramItem.className = 'parameter-item';
+        paramItem.dataset.id = param.id;
         
         // Check if this is a mandatory parameter (has a predefined key)
         const isMandatoryParam = mandatoryParameters.some(p => p.key === param.key);
         
         paramItem.innerHTML = `
+          <div class="drag-handle">⋮</div>
           <input type="text" value="${escapeHtml(param.key)}" placeholder="Key" data-id="${param.id}" data-type="key" ${isMandatoryParam ? 'readonly class="bg-gray-100"' : ''}>
           <input type="text" value="${escapeHtml(param.value)}" placeholder="Value" data-id="${param.id}" data-type="value">
           <button class="btn-outline btn-sm remove-param" data-id="${param.id}">&times;</button>
@@ -1235,32 +1020,9 @@
       document.querySelectorAll('.remove-param').forEach(button => {
         button.addEventListener('click', confirmRemoveParameter);
       });
-    }
-    
-    // Render event tokens list
-    function renderEventTokensList() {
-      elements.eventTokensList.innerHTML = '';
       
-      state.eventTokens.forEach(event => {
-        const eventItem = document.createElement('div');
-        eventItem.className = 'parameter-item';
-        eventItem.innerHTML = `
-          <input type="text" value="${escapeHtml(event.token)}" placeholder="Event Token" data-id="${event.id}" data-type="event-token">
-          <div></div>
-          <button class="btn-outline btn-sm remove-event" data-id="${event.id}">&times;</button>
-        `;
-        elements.eventTokensList.appendChild(eventItem);
-      });
-      
-      // Add event listeners to event token inputs
-      document.querySelectorAll('[data-type="event-token"]').forEach(input => {
-        input.addEventListener('input', handleEventTokenChange);
-      });
-      
-      // Add event listeners to remove buttons
-      document.querySelectorAll('.remove-event').forEach(button => {
-        button.addEventListener('click', removeEventToken);
-      });
+      // Initialize Sortable for parameters
+      initSortable();
     }
     
     // Handle parameter change
@@ -1287,18 +1049,6 @@
       }
     }
     
-    // Handle event token change
-    function handleEventTokenChange(e) {
-      const id = e.target.dataset.id;
-      const value = e.target.value;
-      
-      const tokenIndex = state.eventTokens.findIndex(t => t.id === id);
-      if (tokenIndex !== -1) {
-        state.eventTokens[tokenIndex].token = value;
-        updateFinalLink();
-      }
-    }
-    
     // Add parameter
     function addParameter(key, value) {
       const param = {id: generateId(), key: key, value: value};
@@ -1319,22 +1069,6 @@
       }
     }
     
-    // Add event token
-    function addEventToken(token) {
-      const event = {id: generateId(), token: token};
-      state.eventTokens.push(event);
-      renderEventTokensList();
-      updateFinalLink();
-    }
-    
-    // Remove event token
-    function removeEventToken(e) {
-      const id = e.target.dataset.id;
-      state.eventTokens = state.eventTokens.filter(t => t.id !== id);
-      renderEventTokensList();
-      updateFinalLink();
-    }
-    
     // Save link
     function saveLink() {
       if (!state.linkName) {
@@ -1343,7 +1077,7 @@
       }
       
       if (!state.appTrackerId) {
-        showToast('Please enter an App/Tracker ID');
+        showToast('Please enter an App ID');
         return;
       }
       
@@ -1366,10 +1100,9 @@
         platform: state.platform,
         linkType: state.linkType,
         appTrackerId: state.appTrackerId,
-        subdomain: state.subdomain,
-        templateId: state.templateId,
+        subdomain: state.subdomain || "",
+        templateId: state.templateId || "",
         parameters: state.parameters,
-        eventTokens: state.eventTokens,
         finalLink: state.finalLink,
         createdAt: Date.now()
       };
@@ -1478,25 +1211,8 @@
         state.subdomain = link.subdomain || "";
         state.templateId = link.templateId || "";
         state.parameters = [...link.parameters];
-        state.eventTokens = [...link.eventTokens];
         state.finalLink = link.finalLink;
         state.linkName = link.name;
-        
-        // Check for Adjust settings
-        if (state.platform === 'Adjust') {
-          state.addTrackerLimit = link.finalLink.includes('tracker_limit=250000');
-          state.addRejectedCallback = link.finalLink.includes('adj_rejected_install_callback=');
-          
-          const relevantParams = link.parameters.filter(p => 
-            !p.key.startsWith('event_callback_') && 
-            p.key !== 'tracker_limit' && 
-            p.key !== 'adj_rejected_install_callback'
-          );
-          
-          if (relevantParams.length > 0) {
-            state.prefixParameters = relevantParams.every(param => param.key.startsWith('ad_'));
-          }
-        }
         
         // Update UI
         elements.platformButtons.forEach(btn => {
@@ -1510,14 +1226,10 @@
         elements.appTrackerId.value = state.appTrackerId;
         elements.subdomain.value = state.subdomain;
         elements.templateId.value = state.templateId;
-        elements.prefixToggle.checked = state.prefixParameters;
-        elements.trackerLimitToggle.checked = state.addTrackerLimit;
-        elements.rejectedCallbackToggle.checked = state.addRejectedCallback;
         elements.linkName.value = state.linkName;
         
         updateUIBasedOnPlatform();
         renderParametersList();
-        renderEventTokensList();
         updateFinalLink();
         
         // Switch to builder tab
@@ -1573,6 +1285,39 @@
       }
     }
     
+    // Initialize Sortable for parameters list
+    function initSortable() {
+      const parametersList = document.getElementById('parametersList');
+      if (parametersList) {
+        new Sortable(parametersList, {
+          animation: 150,
+          handle: '.drag-handle',
+          ghostClass: 'sortable-ghost',
+          chosenClass: 'sortable-chosen',
+          onEnd: function(evt) {
+            // Update parameters order when drag ends
+            const reorderedParameters = [];
+            const items = parametersList.querySelectorAll('.parameter-item');
+            
+            items.forEach(item => {
+              const id = item.dataset.id;
+              const param = state.parameters.find(p => p.id === id);
+              if (param) {
+                reorderedParameters.push(param);
+              }
+            });
+            
+            // Update state with reordered parameters
+            state.parameters = reorderedParameters;
+            
+            // Update the final link with the new parameter order
+            updateFinalLink();
+            showToast('Parameter order updated');
+          }
+        });
+      }
+    }
+    
     // Helper: Generate ID
     function generateId() { return Math.random().toString(36).substring(2, 15); }
     
@@ -1601,7 +1346,7 @@
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
       };
-    };
+    }
     
     // Initialize the app
     document.addEventListener('DOMContentLoaded', init);
