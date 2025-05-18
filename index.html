@@ -1,320 +1,68 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Link Genie - Tracking Link Builder</title>
-  <!-- Add Sortable.js for drag and drop functionality -->
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
   <style>
-    :root {
-      --primary: #0096FF;
-      --primary-hover: #007acc;
-      --secondary: #f3f4f6;
-      --secondary-hover: #e5e7eb;
-      --text: #1f2937;
-      --text-light: #6b7280;
-      --error: #ef4444;
-      --success: #10b981;
-      --border: #e5e7eb;
-      --background: #ffffff;
-      --background-alt: #9bc9f7;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      line-height: 1.5;
-      color: var(--text);
-      background-color: var(--background-alt);
-      margin: 0;
-      padding: 0;
-    }
-    .dark-mode {
-      --primary: #0096FF;
-      --primary-hover: #33a6ff;
-      --secondary: #374151;
-      --secondary-hover: #4b5563;
-      --text: #f9fafb;
-      --text-light: #9ca3af;
-      --border: #4b5563;
-      --background: #111827;
-      --background-alt: #1a365d;
-    }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 1rem;
-    }
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 0;
-      margin-bottom: 2rem;
-      border-bottom: 1px solid var(--border);
-    }.link-preview {
-      background-color: var(--secondary);
-      border-radius: 0.375rem;
-      padding: 0.75rem;
-      font-family: monospace;
-      font-size: 0.875rem;
-      white-space: pre-wrap;
-      word-break: break-all;
-      overflow-x: auto;
-      color: var(--text);
-      min-height: 80px;
-      cursor: text;
-      outline: none;
-    }
-    .link-preview:focus {
-      border: 1px solid var(--primary);
-      box-shadow: 0 0 0 2px rgba(0, 150, 255, 0.1);
-    }
-    .link-preview-help {
-      color: var(--text-light);
-      font-size: 0.75rem;
-      margin-top: 0.25rem;
-      font-style: italic;
-    }
-    .app-title {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: var(--primary);
-      margin: 0;
-    }
-    .tabs {
-      display: flex;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 1.5rem;
-    }
-    .tab {
-      padding: 0.5rem 1rem;
-      background: none;
-      border: none;
-      border-bottom: 2px solid transparent;
-      font-weight: 600;
-      cursor: pointer;
-      color: var(--text-light);
-      transition: all 0.2s ease;
-    }
-    .tab.active {
-      color: var(--primary);
-      border-bottom: 2px solid var(--primary);
-    }
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-    }
-    .card {
-      background-color: var(--background);
-      border-radius: 0.5rem;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-    }
-    .form-group {
-      margin-bottom: 1.25rem;
-    }
-    .form-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-    .form-col {
-      flex: 1;
-      min-width: 250px;
-    }
-    label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      font-size: 0.875rem;
-    }
-    .platform-toggle {
-      display: flex;
-      border: 1px solid var(--border);
-      border-radius: 0.375rem;
-      overflow: hidden;
-      margin-bottom: 1rem;
-      width: fit-content;
-    }
-    .platform-btn {
-      padding: 0.5rem 1rem;
-      border: none;
-      background: var(--secondary);
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 0.875rem;
-    }
-    .platform-btn.active {
-      background-color: var(--primary);
-      color: white;
-    }
-    input, textarea, select {
-      width: 100%;
-      padding: 0.625rem;
-      font-size: 0.875rem;
-      border: 1px solid var(--border);
-      border-radius: 0.375rem;
-      background-color: var(--background);
-      color: var(--text);
-      box-sizing: border-box;
-    }
-    textarea {
-      font-family: monospace;
-      min-height: 100px;
-      resize: vertical;
-      white-space: pre-wrap;
-      overflow-wrap: break-word;
-      overflow-x: auto;
-      color: var(--text);
-    }
-    .dark-mode textarea {
-      background-color: var(--background);
-      color: var(--text);
-      border-color: var(--border);
-    }
-    button {
-      cursor: pointer;
-      padding: 0.625rem 1rem;
-      font-size: 0.875rem;
-      font-weight: 600;
-      border-radius: 0.375rem;
-      transition: all 0.2s ease;
-    }
-    .btn-primary {
-      background-color: var(--primary);
-      color: white;
-      border: none;
-    }
-    .btn-primary:hover {
-      background-color: var(--primary-hover);
-    }
-    .btn-outline {
-      background-color: transparent;
-      border: 1px solid var(--border);
-      color: var(--text);
-    }
-    .btn-outline:hover {
-      background-color: var(--secondary);
-    }
-    .toast {
-      position: fixed;
-      bottom: 1rem;
-      right: 1rem;
-      padding: 1rem;
-      background-color: var(--success);
-      color: white;
-      border-radius: 0.375rem;
-      font-weight: 600;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      z-index: 1000;
-      transition: all 0.3s ease;
-      transform: translateY(150%);
-      opacity: 0;
-    }
-    .toast.show {
-      transform: translateY(0);
-      opacity: 1;
-    }
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-    }
-    .modal-content {
-      background-color: var(--background);
-      padding: 2rem;
-      border-radius: 0.5rem;
-      max-width: 500px;
-      width: 90%;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    }
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-    .modal-title {
-      font-size: 1.25rem;
-      font-weight: 600;
-      margin: 0;
-    }
-    .close-modal {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-      color: var(--text-light);
-      padding: 0;
-    }
-    .close-modal:hover {
-      color: var(--text);
-    }
-    .parameters-list {
-      border: 1px solid var(--border);
-      border-radius: 0.375rem;
-      overflow-y: auto;
-      max-height: 400px;
-    }
-    .parameters-header {
-      display: grid;
-      grid-template-columns: 30px 1fr 1fr 40px;
-      gap: 0.5rem;
-      padding: 0.5rem;
-      font-weight: 600;
-      font-size: 0.75rem;
-      color: var(--text-light);
-      border-bottom: 1px solid var(--border);
-      background-color: var(--secondary);
-    }
-    .parameter-item {
-      display: grid;
-      grid-template-columns: 30px 1fr 1fr 40px;
-      gap: 0.5rem;
-      padding: 0.5rem;
-      border-bottom: 1px solid var(--border);
-      align-items: center;
-    }
-    .parameter-item:last-child {
-      border-bottom: none;
-    }
-    .parameter-item input {
-      padding: 0.25rem 0.5rem;
-      font-size: 0.75rem;
-      height: 2rem;
-    }
-    .drag-handle {
-      cursor: grab;
-      color: var(--text-light);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.25rem;
-      opacity: 0.5;
-      transition: opacity 0.2s;
-      padding: 0.25rem;
-    }
-    .parameter-item:hover .drag-handle {
-      opacity: 1;
-    }
-    .parameter-item.sortable-ghost {
-      opacity: 0.4;
-      background-color: var(--primary);
-    }
-    .parameter-item.sortable-chosen {
-      background-color: var(--background);
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
+    :root {--primary:#0096FF;--primary-hover:#007acc;--secondary:#f3f4f6;--secondary-hover:#e5e7eb;--text:#1f2937;--text-light:#6b7280;--error:#ef4444;--success:#10b981;--border:#e5e7eb;--background:#ffffff;--background-alt:#9bc9f7;}
+    body {font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5;color:var(--text);background-color:var(--background-alt);margin:0;padding:0;}
+    .dark-mode {--primary:#0096FF;--primary-hover:#33a6ff;--secondary:#374151;--secondary-hover:#4b5563;--text:#f9fafb;--text-light:#9ca3af;--border:#4b5563;--background:#111827;--background-alt:#1a365d;}
+    .container {max-width:1200px;margin:0 auto;padding:1rem;}
+    header {display:flex;justify-content:space-between;align-items:center;padding:1rem 0;margin-bottom:2rem;border-bottom:1px solid var(--border);}
+    .link-preview {background-color:var(--secondary);border-radius:.375rem;padding:.75rem;font-family:monospace;font-size:.875rem;white-space:pre-wrap;word-break:break-all;overflow-x:auto;color:var(--text);min-height:80px;cursor:text;outline:none;}
+    .link-preview:focus {border:1px solid var(--primary);box-shadow:0 0 0 2px rgba(0,150,255,0.1);}
+    .link-preview-help {color:var(--text-light);font-size:.75rem;margin-top:.25rem;font-style:italic;}
+    .app-title {font-size:1.5rem;font-weight:bold;color:var(--primary);margin:0;}
+    .tabs {display:flex;border-bottom:1px solid var(--border);margin-bottom:1.5rem;}
+    .tab {padding:.5rem 1rem;background:none;border:none;border-bottom:2px solid transparent;font-weight:600;cursor:pointer;color:var(--text-light);transition:all .2s ease;}
+    .tab.active {color:var(--primary);border-bottom:2px solid var(--primary);}
+    .tab-content {display:none;}
+    .tab-content.active {display:block;}
+    .card {background-color:var(--background);border-radius:.5rem;box-shadow:0 1px 3px rgba(0,0,0,0.1);padding:1.5rem;margin-bottom:1.5rem;}
+    .form-group {margin-bottom:1.25rem;}
+    .form-row {display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:1rem;}
+    .form-col {flex:1;min-width:250px;}
+    label {display:block;font-weight:600;margin-bottom:.5rem;font-size:.875rem;}
+    .platform-toggle {display:flex;border:1px solid var(--border);border-radius:.375rem;overflow:hidden;margin-bottom:1rem;width:fit-content;}
+    .platform-btn {padding:.5rem 1rem;border:none;background:var(--secondary);font-weight:600;cursor:pointer;font-size:.875rem;}
+    .platform-btn.active {background-color:var(--primary);color:white;}
+    input, textarea, select {width:100%;padding:.625rem;font-size:.875rem;border:1px solid var(--border);border-radius:.375rem;background-color:var(--background);color:var(--text);box-sizing:border-box;}
+    textarea {font-family:monospace;min-height:100px;resize:vertical;white-space:pre-wrap;overflow-wrap:break-word;overflow-x:auto;color:var(--text);}
+    .dark-mode textarea {background-color:var(--background);color:var(--text);border-color:var(--border);}
+    button {cursor:pointer;padding:.625rem 1rem;font-size:.875rem;font-weight:600;border-radius:.375rem;transition:all .2s ease;}
+    .btn-primary {background-color:var(--primary);color:white;border:none;}
+    .btn-primary:hover {background-color:var(--primary-hover);}
+    .btn-outline {background-color:transparent;border:1px solid var(--border);color:var(--text);}
+    .btn-outline:hover {background-color:var(--secondary);}
+    .toast {position:fixed;bottom:1rem;right:1rem;padding:1rem;background-color:var(--success);color:white;border-radius:.375rem;font-weight:600;box-shadow:0 4px 6px rgba(0,0,0,0.1);z-index:1000;transition:all .3s ease;transform:translateY(150%);opacity:0;}
+    .toast.show {transform:translateY(0);opacity:1;}
+    .modal {display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;}
+    .modal-content {background-color:var(--background);padding:2rem;border-radius:.5rem;max-width:500px;width:90%;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);}
+    .modal-header {display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;}
+    .modal-title {font-size:1.25rem;font-weight:600;margin:0;}
+    .close-modal {background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-light);padding:0;}
+    .close-modal:hover {color:var(--text);}
+    .parameters-list {border:1px solid var(--border);border-radius:.375rem;overflow-y:auto;max-height:400px;}
+    .parameters-header {display:grid;grid-template-columns:30px 1fr 1fr 40px;gap:.5rem;padding:.5rem;font-weight:600;font-size:.75rem;color:var(--text-light);border-bottom:1px solid var(--border);background-color:var(--secondary);}
+    .parameter-item {display:grid;grid-template-columns:30px 1fr 1fr 40px;gap:.5rem;padding:.5rem;border-bottom:1px solid var(--border);align-items:center;}
+    .parameter-item:last-child {border-bottom:none;}
+    .parameter-item input {padding:.25rem .5rem;font-size:.75rem;height:2rem;}
+    .drag-handle {cursor:grab;color:var(--text-light);display:flex;align-items:center;justify-content:center;font-size:1.25rem;opacity:.5;transition:opacity .2s;padding:.25rem;}
+    .parameter-item:hover .drag-handle {opacity:1;}
+    .parameter-item.sortable-ghost {opacity:.4;background-color:var(--primary);}
+    .parameter-item.sortable-chosen {background-color:var(--background);box-shadow:0 0 10px rgba(0,0,0,0.1);}
+   
+/* New styles for history items */
+   .history-item {  background-color: var(--background); border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--border);}
+    .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+   .history-title { font-size: 1rem; font-weight: 600; margin: 0;color: var(--primary);}
+    .action-row { display: flex; gap: 0.5rem;}
+    .btn-sm { padding: 0.25rem 0.5rem;font-size: 0.75rem; }
+    .history-meta { font-size: 0.75rem; color: var(--text-light); margin-bottom: 0.5rem;}
+    .history-link { background-color: var(--secondary); border-radius: 0.375rem; padding: 0.5rem; font-family: monospace;font-size: 0.75rem; word-break: break-all;color: var(--text);margin-top: 0.5rem; }
+    .empty-state { background-color: var(--background); border-radius: 0.5rem; padding: 2rem; text-align: center; color: var(--text-light); font-style: italic; border: 1px dashed var(--border);}
   </style>
 </head>
 <body>
@@ -328,18 +76,13 @@
     
     <div id="builder" class="tab-content active">
       <div class="card">
-        <!-- Link Preview - Now editable -->
         <div class="form-group">
           <label>Link Preview</label>
-          <div class="link-preview" id="linkPreview"></div>
+          <div class="link-preview" id="linkPreview" contenteditable="true"></div>
           <div class="link-preview-help">Paste a tracking link here to analyze and edit it, or build one from scratch below</div>
-          <div class="form-row" style="justify-content: flex-end; margin-top: 0.5rem;">
+          <div class="form-row" style="justify-content:flex-end;margin-top:.5rem;">
             <button class="btn-outline btn-sm" id="resetBtn">Reset to Sample</button>
-            <button class="btn-outline btn-sm" id="copyLinkBtn" style="margin-left: 0.5rem;">
-              <span style="display: inline-flex; align-items: center;">
-                Copy Link
-              </span>
-            </button>
+            <button class="btn-outline btn-sm" id="copyLinkBtn" style="margin-left:.5rem;">Copy Link</button>
           </div>
         </div>
         
@@ -349,7 +92,6 @@
           </div>
         </div>
         
-        <!-- Appsflyer Type Toggle (CTA, VTA, OneLink) -->
         <div id="appsflyerTypeToggle" class="form-row">
           <div class="form-col">
             <div class="form-group">
@@ -370,8 +112,7 @@
           </div>
         </div>
         
-        <!-- OneLink specific fields (hidden by default) -->
-        <div id="oneLinkFields" class="form-row" style="display: none;">
+        <div id="oneLinkFields" class="form-row" style="display:none;">
           <div class="form-col">
             <div class="form-group">
               <label for="subdomain">Subdomain</label>
@@ -386,7 +127,6 @@
           </div>
         </div>
         
-        <!-- Parameters Section with mandatory parameters -->
         <div class="form-group">
           <div class="form-header">
             <label>Parameters</label>
@@ -404,14 +144,13 @@
           </div>
         </div>
         
-        <!-- Link Name and Save -->
         <div class="form-group">
           <label for="linkName">Link ID</label>
           <input type="text" id="linkName" placeholder="My Awesome Campaign">
         </div>
         
         <div class="form-row">
-          <div class="form-col" style="text-align: right;">
+          <div class="form-col" style="text-align:right;">
             <button class="btn-primary" id="saveBtn">Save Link</button>
           </div>
         </div>
@@ -425,7 +164,7 @@
             <div class="form-col">
               <input type="text" id="searchLinks" placeholder="Search links...">
             </div>
-            <div class="form-col" style="flex: 0 0 auto;">
+            <div class="form-col" style="flex:0 0 auto;">
               <button class="btn-outline" id="clearHistoryBtn">Clear All</button>
             </div>
           </div>
@@ -436,10 +175,8 @@
     </div>
   </div>
   
-  <!-- Success Toast -->
   <div id="toast" class="toast">Link copied to clipboard</div>
 
-  <!-- Modal for confirming clear history -->
   <div id="confirmModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -447,14 +184,13 @@
         <button class="close-modal" id="closeModal">&times;</button>
       </div>
       <p>Are you sure you want to clear all your saved links? This action cannot be undone.</p>
-      <div style="display: flex; justify-content: space-between; margin-top: 1.5rem;">
+      <div style="display:flex;justify-content:space-between;margin-top:1.5rem;">
         <button class="btn-outline" id="cancelClear">Cancel</button>
         <button class="btn-primary" id="confirmClear">Clear All</button>
       </div>
     </div>
   </div>
   
-  <!-- Modal for confirming parameter removal -->
   <div id="confirmParamRemovalModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -462,80 +198,56 @@
         <button class="close-modal" id="closeParamModal">&times;</button>
       </div>
       <p>Are you sure you want to remove this parameter? This might affect your tracking link functionality.</p>
-      <div style="display: flex; justify-content: space-between; margin-top: 1.5rem;">
+      <div style="display:flex;justify-content:space-between;margin-top:1.5rem;">
         <button class="btn-outline" id="cancelRemoveParam">Cancel</button>
         <button class="btn-primary" id="confirmRemoveParam">Remove</button>
       </div>
     </div>
   </div>
 
+  <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
   <script>
-    // Updated list of mandatory parameters
-    const mandatoryParameters = [
-      { key: "pid", description: "Media source (e.g., network or partner name)" },
-      { key: "clickid", description: "Click identifier from ad network" },
-      { key: "af_sub3", description: "Custom parameter (publisher id from Swaarm)" },
-      { key: "c", description: "Campaign name" },
-      { key: "af_c_id", description: "Campaign ID" },
-      { key: "af_siteid", description: "Publisher/site ID" },
-      { key: "af_sub_site", description: "Sub publisher site" },
-      { key: "af_adset_id", description: "Ad set ID" },
-      { key: "af_adset", description: "Ad set name" },
-      { key: "af_ad_id", description: "Ad ID" },
-      { key: "af_ad", description: "Ad name or creative" },
-      { key: "af_channel", description: "Distribution channel (e.g., programmatic, UAC)" },
-      { key: "deep_link_value", description: "In-app destination/deep link path" },
-      { key: "af_sub1", description: "Custom parameter (used here for app name)" },
-      { key: "af_click_lookback", description: "Click attribution lookback window (e.g., 7d)" },
-      { key: "af_viewthrough_lookback", description: "View-through attribution lookback window" },
-      { key: "advertising_id", description: "Google Advertising ID (GAID)" },
-      { key: "idfa", description: "iOS Advertising ID" },
-      { key: "af_prt", description: "Agency partner name (for agency attribution)" }
-    ];
+    // Mandatory parameters list
+    const mandatoryParameters=[{key:"pid",description:"Media source (e.g., network or partner name)"},{key:"clickid",description:"Click identifier from ad network"},{key:"af_sub3",description:"Custom parameter (publisher id from Swaarm)"},{key:"c",description:"Campaign name"},{key:"af_c_id",description:"Campaign ID"},{key:"af_siteid",description:"Publisher/site ID"},{key:"af_sub_site",description:"Sub publisher site"},{key:"af_adset_id",description:"Ad set ID"},{key:"af_adset",description:"Ad set name"},{key:"af_ad_id",description:"Ad ID"},{key:"af_ad",description:"Ad name or creative"},{key:"af_channel",description:"Distribution channel (e.g., programmatic, UAC)"},{key:"deep_link_value",description:"In-app destination/deep link path"},{key:"af_sub1",description:"Custom parameter (used here for app name)"},{key:"af_click_lookback",description:"Click attribution lookback window (e.g., 7d)"},{key:"af_viewthrough_lookback",description:"View-through attribution lookback window"},{key:"advertising_id",description:"Google Advertising ID (GAID)"},{key:"idfa",description:"iOS Advertising ID"},{key:"af_prt",description:"Agency partner name (for agency attribution)"}];
     
     // State management
-    const state = {
-      platform: "Appsflyer", linkType: "CTA", appTrackerId: "", subdomain: "", templateId: "",
-      parameters: mandatoryParameters.map(param => ({ id: generateId(), key: param.key, value: "" })),
-      finalLink: "", linkName: "", links: [], linkCounter: 1, theme: "light", pendingRemovalId: null,
-      processingUpdate: false
-    };
+    const state={platform:"Appsflyer",linkType:"CTA",appTrackerId:"",subdomain:"",templateId:"",parameters:mandatoryParameters.map(param=>({id:generateId(),key:param.key,value:""})),finalLink:"",linkName:"",links:[],linkCounter:1,theme:"light",pendingRemovalId:null,processingUpdate:false};
 
     // DOM elements
-    const elements = {
-      platformButtons: document.querySelectorAll('.platform-btn[data-platform]'),
-      linkTypeButtons: document.querySelectorAll('.platform-btn[data-type]'),
-      appTrackerIdLabel: document.getElementById('appTrackerIdLabel'),
-      appTrackerId: document.getElementById('appTrackerId'),
-      oneLinkFields: document.getElementById('oneLinkFields'),
-      subdomain: document.getElementById('subdomain'),
-      templateId: document.getElementById('templateId'),
-      parametersList: document.getElementById('parametersList'),
-      addParamBtn: document.getElementById('addParamBtn'),
-      linkPreview: document.getElementById('linkPreview'),
-      linkName: document.getElementById('linkName'),
-      saveBtn: document.getElementById('saveBtn'),
-      resetBtn: document.getElementById('resetBtn'),
-      copyLinkBtn: document.getElementById('copyLinkBtn'),
-      tabs: document.querySelectorAll('.tab'),
-      tabContents: document.querySelectorAll('.tab-content'),
-      searchLinks: document.getElementById('searchLinks'),
-      linksHistory: document.getElementById('linksHistory'),
-      clearHistoryBtn: document.getElementById('clearHistoryBtn'),
-      toast: document.getElementById('toast'),
-      confirmModal: document.getElementById('confirmModal'),
-      closeModal: document.getElementById('closeModal'),
-      cancelClear: document.getElementById('cancelClear'),
-      confirmClear: document.getElementById('confirmClear'),
-      themeToggle: document.getElementById('themeToggle'),
-      confirmParamRemovalModal: document.getElementById('confirmParamRemovalModal'),
-      closeParamModal: document.getElementById('closeParamModal'),
-      cancelRemoveParam: document.getElementById('cancelRemoveParam'),
-      confirmRemoveParam: document.getElementById('confirmRemoveParam')
+    const elements={
+      platformButtons:document.querySelectorAll('.platform-btn[data-platform]'),
+      linkTypeButtons:document.querySelectorAll('.platform-btn[data-type]'),
+      appTrackerIdLabel:document.getElementById('appTrackerIdLabel'),
+      appTrackerId:document.getElementById('appTrackerId'),
+      oneLinkFields:document.getElementById('oneLinkFields'),
+      subdomain:document.getElementById('subdomain'),
+      templateId:document.getElementById('templateId'),
+      parametersList:document.getElementById('parametersList'),
+      addParamBtn:document.getElementById('addParamBtn'),
+      linkPreview:document.getElementById('linkPreview'),
+      linkName:document.getElementById('linkName'),
+      saveBtn:document.getElementById('saveBtn'),
+      resetBtn:document.getElementById('resetBtn'),
+      copyLinkBtn:document.getElementById('copyLinkBtn'),
+      tabs:document.querySelectorAll('.tab'),
+      tabContents:document.querySelectorAll('.tab-content'),
+      searchLinks:document.getElementById('searchLinks'),
+      linksHistory:document.getElementById('linksHistory'),
+      clearHistoryBtn:document.getElementById('clearHistoryBtn'),
+      toast:document.getElementById('toast'),
+      confirmModal:document.getElementById('confirmModal'),
+      closeModal:document.getElementById('closeModal'),
+      cancelClear:document.getElementById('cancelClear'),
+      confirmClear:document.getElementById('confirmClear'),
+      themeToggle:document.getElementById('themeToggle'),
+      confirmParamRemovalModal:document.getElementById('confirmParamRemovalModal'),
+      closeParamModal:document.getElementById('closeParamModal'),
+      cancelRemoveParam:document.getElementById('cancelRemoveParam'),
+      confirmRemoveParam:document.getElementById('confirmRemoveParam')
     };
 
     // Initialize app
-    function init() {
+    function init(){
       loadFromLocalStorage();
       setupEventListeners();
       updateUIBasedOnPlatform();
@@ -544,400 +256,308 @@
       renderLinksHistory();
       setTheme(state.theme);
       
-      // Initialize link counter based on existing links
-      if (state.links.length > 0) {
-        const numbers = state.links
-          .map(link => {
-            const match = link.name.match(/^#(\d+)/);
-            return match ? parseInt(match[1]) : 0;
-          })
-          .filter(num => !isNaN(num));
+      if(state.links.length>0){
+        const numbers=state.links.map(link=>{
+          const match=link.name.match(/^#(\d+)/);
+          return match?parseInt(match[1]):0;
+        }).filter(num=>!isNaN(num));
           
-        state.linkCounter = numbers.length > 0 ? Math.max(...numbers) + 1 : 1;
+        state.linkCounter=numbers.length>0?Math.max(...numbers)+1:1;
       }
     }
     
     // Setup event listeners
-    function setupEventListeners() {
-      // Link preview paste and input events
-      elements.linkPreview.addEventListener('paste', (e) => {
+    function setupEventListeners(){
+      // Link preview events
+      elements.linkPreview.addEventListener('paste',e=>{
         e.preventDefault();
-        const text = (e.clipboardData || window.clipboardData).getData('text');
-        
-        if (text && text.includes('http')) {
-          elements.linkPreview.textContent = text;
+        const text=(e.clipboardData||window.clipboardData).getData('text');
+        if(text&&text.includes('http')){
+          elements.linkPreview.textContent=text;
           parseLink(text);
         }
       });
       
-      // Make linkPreview clickable to focus and allow editing
-      elements.linkPreview.addEventListener('click', function() {
-        this.focus();
-      });
+      elements.linkPreview.addEventListener('click',function(){this.focus();});
       
-      // Handle direct editing in the link preview (with improved debounce)
-      elements.linkPreview.addEventListener('input', debounce(() => {
-        const editedLink = elements.linkPreview.textContent.trim();
-        if (editedLink && !state.processingUpdate) {
-          state.finalLink = editedLink;
-          
-          // Try to parse the link if it looks like a URL
-          if (editedLink.startsWith('http') && !state.processingUpdate) {
-            parseLink(editedLink);
-          }
+      elements.linkPreview.addEventListener('input',debounce(()=>{
+        const editedLink=elements.linkPreview.textContent.trim();
+        if(editedLink&&!state.processingUpdate){
+          state.finalLink=editedLink;
+          if(editedLink.startsWith('http')&&!state.processingUpdate)parseLink(editedLink);
         }
-      }, 500));
+      },500));
       
       // Copy link button
-      elements.copyLinkBtn.addEventListener('click', () => {
-        const linkText = elements.linkPreview.textContent;
-        if (linkText) {
+      elements.copyLinkBtn.addEventListener('click',()=>{
+        const linkText=elements.linkPreview.textContent;
+        if(linkText){
           navigator.clipboard.writeText(linkText)
-            .then(() => showToast('Link copied to clipboard'))
-            .catch(() => showToast('Failed to copy link', true));
+            .then(()=>showToast('Link copied to clipboard'))
+            .catch(()=>showToast('Failed to copy link',true));
         }
       });
       
       // Platform toggle
-      elements.platformButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          elements.platformButtons.forEach(b => b.classList.remove('active'));
+      elements.platformButtons.forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          elements.platformButtons.forEach(b=>b.classList.remove('active'));
           btn.classList.add('active');
-          state.platform = btn.dataset.platform;
+          state.platform=btn.dataset.platform;
           updateUIBasedOnPlatform();
           
-          // Reset link type to CTA if switching platforms
-          if (state.linkType === "OneLink" && state.platform !== "Appsflyer") {
-            state.linkType = "CTA";
-            elements.linkTypeButtons.forEach(b => {
-              b.classList.toggle('active', b.dataset.type === "CTA");
-            });
+          if(state.linkType==="OneLink"&&state.platform!=="Appsflyer"){
+            state.linkType="CTA";
+            elements.linkTypeButtons.forEach(b=>b.classList.toggle('active',b.dataset.type==="CTA"));
           }
           
           updateFinalLink();
-          
-          // Auto-generate link name when platform changes
           generateLinkName();
         });
       });
       
       // Link type toggle
-      elements.linkTypeButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          elements.linkTypeButtons.forEach(b => b.classList.remove('active'));
+      elements.linkTypeButtons.forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          elements.linkTypeButtons.forEach(b=>b.classList.remove('active'));
           btn.classList.add('active');
-          state.linkType = btn.dataset.type;
+          state.linkType=btn.dataset.type;
           
-          // Toggle OneLink fields visibility
-          elements.oneLinkFields.style.display = state.linkType === "OneLink" ? "flex" : "none";
+          elements.oneLinkFields.style.display=state.linkType==="OneLink"?"flex":"none";
           
-          // Update template link based on link type
           updateTemplateLink();
           updateFinalLink();
-          
-          // Auto-generate link name when link type changes
           generateLinkName();
         });
       });
       
       // App/Tracker ID input
-      elements.appTrackerId.addEventListener('input', (e) => {
-        state.appTrackerId = e.target.value;
+      elements.appTrackerId.addEventListener('input',e=>{
+        state.appTrackerId=e.target.value;
         updateFinalLink();
         generateLinkName();
       });
       
-      // OneLink subdomain input
-      elements.subdomain.addEventListener('input', (e) => {
-        state.subdomain = e.target.value;
+      // OneLink inputs
+      elements.subdomain.addEventListener('input',e=>{
+        state.subdomain=e.target.value;
         updateFinalLink();
       });
       
-      // OneLink template ID input
-      elements.templateId.addEventListener('input', (e) => {
-        state.templateId = e.target.value;
+      elements.templateId.addEventListener('input',e=>{
+        state.templateId=e.target.value;
         updateFinalLink();
       });
       
       // Add parameter button
-      elements.addParamBtn.addEventListener('click', () => {
-        addParameter('', ''); // Add a blank parameter row
-      });
+      elements.addParamBtn.addEventListener('click',()=>addParameter('',''));
       
       // Save link button
-      elements.saveBtn.addEventListener('click', saveLink);
+      elements.saveBtn.addEventListener('click',saveLink);
       
       // Reset button
-      elements.resetBtn.addEventListener('click', loadSampleLink);
+      elements.resetBtn.addEventListener('click',loadSampleLink);
       
       // Tab navigation
-      elements.tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-          const tabName = tab.dataset.tab;
-          elements.tabs.forEach(t => t.classList.remove('active'));
-          elements.tabContents.forEach(c => c.classList.remove('active'));
+      elements.tabs.forEach(tab=>{
+        tab.addEventListener('click',()=>{
+          const tabName=tab.dataset.tab;
+          elements.tabs.forEach(t=>t.classList.remove('active'));
+          elements.tabContents.forEach(c=>c.classList.remove('active'));
           tab.classList.add('active');
           document.getElementById(tabName).classList.add('active');
         });
       });
       
       // Search links
-      elements.searchLinks.addEventListener('input', (e) => {
-        const searchTerm = e.target.value.toLowerCase();
-        renderLinksHistory(searchTerm);
+      elements.searchLinks.addEventListener('input',e=>renderLinksHistory(e.target.value.toLowerCase()));
+      
+      // Clear history button and modal
+      elements.clearHistoryBtn.addEventListener('click',()=>{
+        if(state.links.length>0)elements.confirmModal.style.display='flex';
       });
       
-      // Clear history button
-      elements.clearHistoryBtn.addEventListener('click', () => {
-        if (state.links.length > 0) {
-          elements.confirmModal.style.display = 'flex';
-        }
-      });
-      
-      // Confirm clear
-      elements.confirmClear.addEventListener('click', () => {
-        state.links = [];
-        state.linkCounter = 1;
+      elements.confirmClear.addEventListener('click',()=>{
+        state.links=[];
+        state.linkCounter=1;
         saveToLocalStorage();
         renderLinksHistory();
-        elements.confirmModal.style.display = 'none';
+        elements.confirmModal.style.display='none';
         showToast('All links have been cleared');
       });
       
-      // Cancel clear
-      elements.cancelClear.addEventListener('click', () => {
-        elements.confirmModal.style.display = 'none';
-      });
+      elements.cancelClear.addEventListener('click',()=>elements.confirmModal.style.display='none');
+      elements.closeModal.addEventListener('click',()=>elements.confirmModal.style.display='none');
       
-      // Close modal
-      elements.closeModal.addEventListener('click', () => {
-        elements.confirmModal.style.display = 'none';
-      });
-      
-      // Click outside modal to close
-      window.addEventListener('click', (e) => {
-        if (e.target === elements.confirmModal) {
-          elements.confirmModal.style.display = 'none';
-        } else if (e.target === elements.confirmParamRemovalModal) {
-          elements.confirmParamRemovalModal.style.display = 'none';
-          state.pendingRemovalId = null;
+      window.addEventListener('click',e=>{
+        if(e.target===elements.confirmModal)elements.confirmModal.style.display='none';
+        else if(e.target===elements.confirmParamRemovalModal){
+          elements.confirmParamRemovalModal.style.display='none';
+          state.pendingRemovalId=null;
         }
       });
       
       // Parameter removal confirmation
-      elements.closeParamModal.addEventListener('click', () => {
-        elements.confirmParamRemovalModal.style.display = 'none';
-        state.pendingRemovalId = null;
+      elements.closeParamModal.addEventListener('click',()=>{
+        elements.confirmParamRemovalModal.style.display='none';
+        state.pendingRemovalId=null;
       });
       
-      elements.cancelRemoveParam.addEventListener('click', () => {
-        elements.confirmParamRemovalModal.style.display = 'none';
-        state.pendingRemovalId = null;
+      elements.cancelRemoveParam.addEventListener('click',()=>{
+        elements.confirmParamRemovalModal.style.display='none';
+        state.pendingRemovalId=null;
       });
       
-      elements.confirmRemoveParam.addEventListener('click', () => {
-        const id = state.pendingRemovalId;
-        if (id) {
-          const paramIndex = state.parameters.findIndex(p => p.id === id);
-          
-          if (paramIndex !== -1) {
-            state.parameters.splice(paramIndex, 1);
+      elements.confirmRemoveParam.addEventListener('click',()=>{
+        const id=state.pendingRemovalId;
+        if(id){
+          const paramIndex=state.parameters.findIndex(p=>p.id===id);
+          if(paramIndex!==-1){
+            state.parameters.splice(paramIndex,1);
             renderParametersList();
             updateFinalLink();
           }
         }
-        
-        elements.confirmParamRemovalModal.style.display = 'none';
-        state.pendingRemovalId = null;
+        elements.confirmParamRemovalModal.style.display='none';
+        state.pendingRemovalId=null;
       });
       
       // Theme toggle
-      elements.themeToggle.addEventListener('click', toggleTheme);
+      elements.themeToggle.addEventListener('click',toggleTheme);
       
       // Link name input
-      elements.linkName.addEventListener('input', (e) => {
-        state.linkName = e.target.value;
-      });
+      elements.linkName.addEventListener('input',e=>state.linkName=e.target.value);
     }
     
     // Parse a link from the link preview
-    function parseLink(link) {
-      try {
-        state.processingUpdate = true;
-        const url = new URL(link);
+    function parseLink(link){
+      try{
+        state.processingUpdate=true;
+        const url=new URL(link);
         
-        // Detect platform and link type
-        if (url.hostname.includes('appsflyer.com')) {
-          state.platform = 'Appsflyer';
+        if(url.hostname.includes('appsflyer.com')){
+          state.platform='Appsflyer';
+          state.linkType=url.hostname.includes('impression')?'VTA':'CTA';
           
-          // Check if it's a CTA (app) or VTA (impression) link
-          if (url.hostname.includes('impression')) {
-            state.linkType = 'VTA';
-          } else {
-            state.linkType = 'CTA';
-          }
+          const pathParts=url.pathname.split('/');
+          if(pathParts.length>1)state.appTrackerId=pathParts[1];
+        }else if(url.hostname.includes('onelink.me')){
+          state.platform='Appsflyer';
+          state.linkType='OneLink';
           
-          // Extract app ID from path
-          const pathParts = url.pathname.split('/');
-          if (pathParts.length > 1) {
-            state.appTrackerId = pathParts[1];
-          }
-        } else if (url.hostname.includes('onelink.me')) {
-          state.platform = 'Appsflyer';
-          state.linkType = 'OneLink';
+          const hostnameParts=url.hostname.split('.');
+          if(hostnameParts.length>0)state.subdomain=hostnameParts[0];
           
-          // Extract subdomain and template ID
-          const hostnameParts = url.hostname.split('.');
-          if (hostnameParts.length > 0) {
-            state.subdomain = hostnameParts[0];
-          }
+          const pathParts=url.pathname.split('/');
+          if(pathParts.length>1)state.templateId=pathParts[1];
           
-          const pathParts = url.pathname.split('/');
-          if (pathParts.length > 1) {
-            state.templateId = pathParts[1];
-          }
-          
-          elements.subdomain.value = state.subdomain;
-          elements.templateId.value = state.templateId;
+          elements.subdomain.value=state.subdomain;
+          elements.templateId.value=state.templateId;
         }
         
-        // Update platform buttons
-        elements.platformButtons.forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.platform === state.platform);
-        });
+        elements.platformButtons.forEach(btn=>btn.classList.toggle('active',btn.dataset.platform===state.platform));
+        elements.linkTypeButtons.forEach(btn=>btn.classList.toggle('active',btn.dataset.type===state.linkType));
         
-        // Update link type buttons
-        elements.linkTypeButtons.forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.type === state.linkType);
-        });
+        const params=new URLSearchParams(url.search);
+        const newParams=[];
         
-        // Extract parameters
-        const params = new URLSearchParams(url.search);
-        const newParams = [];
+        params.forEach((value,key)=>newParams.push({id:generateId(),key:key,value:value}));
         
-        params.forEach((value, key) => {
-          newParams.push({
-            id: generateId(),
-            key: key,
-            value: value
-          });
-        });
+        if(newParams.length>0)state.parameters=newParams;
         
-        if (newParams.length > 0) {
-          state.parameters = newParams;
-        }
-        
-        // Update UI
-        elements.appTrackerId.value = state.appTrackerId;
+        elements.appTrackerId.value=state.appTrackerId;
         updateUIBasedOnPlatform();
         renderParametersList();
         updateFinalLink();
-        
-        // Generate link name
         generateLinkName();
         
         showToast('Link parsed successfully');
-      } catch (error) {
-        console.error("Failed to parse URL:", error);
-        showToast('Failed to parse link. Please check the format.', true);
-      } finally {
-        state.processingUpdate = false;
+      }catch(error){
+        console.error("Failed to parse URL:",error);
+        showToast('Failed to parse link. Please check the format.',true);
+      }finally{
+        state.processingUpdate=false;
       }
     }
     
     // Update template link based on link type
-    function updateTemplateLink() {
-      let templateLink = "";
+    function updateTemplateLink(){
+      let templateLink="";
       
-      if (state.linkType === "CTA") {
-        templateLink = `https://app.appsflyer.com/${state.appTrackerId || "{app_id}"}?pid={media_source}&c={campaign_name}`;
-      } else if (state.linkType === "VTA") {
-        templateLink = `https://impression.appsflyer.com/${state.appTrackerId || "{app_id}"}?pid={media_source}&c={campaign_name}`;
-      } else if (state.linkType === "OneLink") {
-        const sub = state.subdomain || "{subdomain}";
-        const tid = state.templateId || "{template_id}";
-        templateLink = `https://${sub}.onelink.me/${tid}?pid={media_source}&c={campaign_name}`;
+      if(state.linkType==="CTA"){
+        templateLink=`https://app.appsflyer.com/${state.appTrackerId||"{app_id}"}?pid={media_source}&c={campaign_name}`;
+      }else if(state.linkType==="VTA"){
+        templateLink=`https://impression.appsflyer.com/${state.appTrackerId||"{app_id}"}?pid={media_source}&c={campaign_name}`;
+      }else if(state.linkType==="OneLink"){
+        const sub=state.subdomain||"{subdomain}";
+        const tid=state.templateId||"{template_id}";
+        templateLink=`https://${sub}.onelink.me/${tid}?pid={media_source}&c={campaign_name}`;
       }
       
-      state.finalLink = templateLink;
+      state.finalLink=templateLink;
       refreshLinkPreview();
     }
     
-    // Refresh the link preview element with the current finalLink
-    function refreshLinkPreview() {
-      if (elements.linkPreview) {
-        elements.linkPreview.textContent = state.finalLink;
-      }
+    // Refresh link preview
+    function refreshLinkPreview(){
+      if(elements.linkPreview)elements.linkPreview.textContent=state.finalLink;
     }
     
     // Generate link name based on parameters
-    function generateLinkName() {
-      let appId = state.appTrackerId;
-      let mediaSource = '';
-      let sub3Value = '';
+    function generateLinkName(){
+      let appId=state.appTrackerId;
+      let mediaSource='';
+      let sub3Value='';
       
-      // Find values from parameters
-      state.parameters.forEach(param => {
-        if (param.key === 'pid') mediaSource = param.value;
-        if (param.key === 'af_sub3') sub3Value = param.value;
+      state.parameters.forEach(param=>{
+        if(param.key==='pid')mediaSource=param.value;
+        if(param.key==='af_sub3')sub3Value=param.value;
       });
       
-      // Clean up values
-      appId = appId.replace(/[{}'"\s]/g, '');
-      mediaSource = mediaSource.replace(/[{}'"\s]/g, '');
-      sub3Value = sub3Value.replace(/[{}'"\s]/g, '');
+      appId=appId.replace(/[{}'"\s]/g,'');
+      mediaSource=mediaSource.replace(/[{}'"\s]/g,'');
+      sub3Value=sub3Value.replace(/[{}'"\s]/g,'');
       
-      // Generate name
-      let name = `#${state.linkCounter}`;
-      if (appId) name += ` - ${appId}`;
-      if (mediaSource) name += ` - ${mediaSource}`;
-      if (sub3Value) name += ` - ${sub3Value}`;
-      name += ` ${state.linkType}`;
+      let name=`#${state.linkCounter}`;
+      if(appId)name+=` - ${appId}`;
+      if(mediaSource)name+=` - ${mediaSource}`;
+      if(sub3Value)name+=` - ${sub3Value}`;
+      name+=` ${state.linkType}`;
       
-      state.linkName = name;
-      elements.linkName.value = name;
+      state.linkName=name;
+      elements.linkName.value=name;
     }
     
     // Update UI based on selected platform
-    function updateUIBasedOnPlatform() {
-      elements.appTrackerIdLabel.textContent = 'App ID';
-      elements.appTrackerId.placeholder = 'com.example.app';
+    function updateUIBasedOnPlatform(){
+      elements.appTrackerIdLabel.textContent='App ID';
+      elements.appTrackerId.placeholder='com.example.app';
       
-      // Update OneLink fields visibility
-      if (state.platform === 'Appsflyer' && state.linkType === 'OneLink') {
-        elements.oneLinkFields.style.display = 'flex';
-      } else {
-        elements.oneLinkFields.style.display = 'none';
+      if(state.platform==='Appsflyer'&&state.linkType==='OneLink'){
+        elements.oneLinkFields.style.display='flex';
+      }else{
+        elements.oneLinkFields.style.display='none';
       }
     }
     
-    // Load default sample link
-    function loadSampleLink() {
-      state.platform = "Appsflyer";
-      state.linkType = "CTA";
-      state.appTrackerId = "{app_id}";
-      state.subdomain = "{subdomain}";
-      state.templateId = "{template_id}";
-      state.parameters = mandatoryParameters.map(param => ({ 
-        id: generateId(), key: param.key, value: "" 
-      }));
+    // Load sample link
+    function loadSampleLink(){
+      state.platform="Appsflyer";
+      state.linkType="CTA";
+      state.appTrackerId="{app_id}";
+      state.subdomain="{subdomain}";
+      state.templateId="{template_id}";
+      state.parameters=mandatoryParameters.map(param=>({id:generateId(),key:param.key,value:""}));
       
-      // Generate link name
       generateLinkName();
       
-      // Update UI
-      elements.platformButtons.forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.platform === state.platform);
-      });
+      elements.platformButtons.forEach(btn=>btn.classList.toggle('active',btn.dataset.platform===state.platform));
+      elements.linkTypeButtons.forEach(btn=>btn.classList.toggle('active',btn.dataset.type===state.linkType));
       
-      elements.linkTypeButtons.forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.type === state.linkType);
-      });
-      
-      elements.appTrackerId.value = state.appTrackerId;
-      elements.subdomain.value = state.subdomain;
-      elements.templateId.value = state.templateId;
-      elements.linkName.value = state.linkName;
+      elements.appTrackerId.value=state.appTrackerId;
+      elements.subdomain.value=state.subdomain;
+      elements.templateId.value=state.templateId;
+      elements.linkName.value=state.linkName;
       
       updateUIBasedOnPlatform();
       renderParametersList();
@@ -947,201 +567,179 @@
     }
     
     // Update final link
-    function updateFinalLink() {
-      try {
-        state.processingUpdate = true;
-        let baseUrl = "";
+    function updateFinalLink(){
+      try{
+        state.processingUpdate=true;
+        let baseUrl="";
         
-        if (state.platform === "Appsflyer") {
-          if (state.linkType === "CTA") {
-            baseUrl = `https://app.appsflyer.com/${state.appTrackerId}`;
-          } else if (state.linkType === "VTA") {
-            baseUrl = `https://impression.appsflyer.com/${state.appTrackerId}`;
-          } else if (state.linkType === "OneLink") {
-            baseUrl = `https://${state.subdomain}.onelink.me/${state.templateId}`;
+        if(state.platform==="Appsflyer"){
+          if(state.linkType==="CTA"){
+            baseUrl=`https://app.appsflyer.com/${state.appTrackerId}`;
+          }else if(state.linkType==="VTA"){
+            baseUrl=`https://impression.appsflyer.com/${state.appTrackerId}`;
+          }else if(state.linkType==="OneLink"){
+            baseUrl=`https://${state.subdomain}.onelink.me/${state.templateId}`;
           }
         }
         
-        const searchParams = new URLSearchParams();
+        const searchParams=new URLSearchParams();
         
-        // Add parameters
-        state.parameters.forEach(param => {
-          if (param.key && param.value) {
-            searchParams.append(param.key, param.value);
-          }
+        state.parameters.forEach(param=>{
+          if(param.key&&param.value)searchParams.append(param.key,param.value);
         });
         
-        const queryString = searchParams.toString();
-        const finalLink = queryString ? `${baseUrl}?${decodeURIComponent(queryString)}` : baseUrl;
+        const queryString=searchParams.toString();
+        const finalLink=queryString?`${baseUrl}?${decodeURIComponent(queryString)}`:baseUrl;
         
-        state.finalLink = finalLink;
+        state.finalLink=finalLink;
         refreshLinkPreview();
-      } catch (error) {
-        console.error("Error generating final link:", error);
-        if (elements.linkPreview) {
-          elements.linkPreview.textContent = "Error generating link";
-        }
-      } finally {
-        state.processingUpdate = false;
+      }catch(error){
+        console.error("Error generating final link:",error);
+        if(elements.linkPreview)elements.linkPreview.textContent="Error generating link";
+      }finally{
+        state.processingUpdate=false;
       }
     }
     
-    // Render parameters list with drag and drop functionality
-    function renderParametersList() {
-      elements.parametersList.innerHTML = '';
+    // Render parameters list with drag and drop
+    function renderParametersList(){
+      elements.parametersList.innerHTML='';
       
-      state.parameters.forEach(param => {
-        const paramItem = document.createElement('div');
-        paramItem.className = 'parameter-item';
-        paramItem.dataset.id = param.id;
+      state.parameters.forEach(param=>{
+        const paramItem=document.createElement('div');
+        paramItem.className='parameter-item';
+        paramItem.dataset.id=param.id;
         
-        // Check if this is a mandatory parameter (has a predefined key)
-        const isMandatoryParam = mandatoryParameters.some(p => p.key === param.key);
+        const isMandatoryParam=mandatoryParameters.some(p=>p.key===param.key);
         
-        paramItem.innerHTML = `
+        paramItem.innerHTML=`
           <div class="drag-handle">⋮</div>
-          <input type="text" value="${escapeHtml(param.key)}" placeholder="Key" data-id="${param.id}" data-type="key" ${isMandatoryParam ? 'readonly class="bg-gray-100"' : ''}>
+          <input type="text" value="${escapeHtml(param.key)}" placeholder="Key" data-id="${param.id}" data-type="key" ${isMandatoryParam?'readonly class="bg-gray-100"':''}>
           <input type="text" value="${escapeHtml(param.value)}" placeholder="Value" data-id="${param.id}" data-type="value">
           <button class="btn-outline btn-sm remove-param" data-id="${param.id}">&times;</button>
         `;
         elements.parametersList.appendChild(paramItem);
       });
       
-      // Add event listeners to parameter inputs
-      document.querySelectorAll('[data-type="key"]').forEach(input => {
-        input.addEventListener('input', handleParameterChange);
-      });
+      document.querySelectorAll('[data-type="key"]').forEach(input=>input.addEventListener('input',handleParameterChange));
+      document.querySelectorAll('[data-type="value"]').forEach(input=>input.addEventListener('input',handleParameterChange));
+      document.querySelectorAll('.remove-param').forEach(button=>button.addEventListener('click',confirmRemoveParameter));
       
-      document.querySelectorAll('[data-type="value"]').forEach(input => {
-        input.addEventListener('input', handleParameterChange);
-      });
-      
-      // Add event listeners to remove buttons with confirmation
-      document.querySelectorAll('.remove-param').forEach(button => {
-        button.addEventListener('click', confirmRemoveParameter);
-      });
-      
-      // Initialize Sortable for parameters
       initSortable();
     }
     
-    // Handle parameter change
-    function handleParameterChange(e) {
-      const id = e.target.dataset.id;
-      const type = e.target.dataset.type;
-      const value = e.target.value;
+    // Parameter change handler
+    function handleParameterChange(e){
+      const id=e.target.dataset.id;
+      const type=e.target.dataset.type;
+      const value=e.target.value;
       
-      const paramIndex = state.parameters.findIndex(p => p.id === id);
-      if (paramIndex !== -1) {
-        if (type === 'key') {
-          state.parameters[paramIndex].key = value;
-        } else if (type === 'value') {
-          state.parameters[paramIndex].value = value;
+      const paramIndex=state.parameters.findIndex(p=>p.id===id);
+      if(paramIndex!==-1){
+        if(type==='key'){
+          state.parameters[paramIndex].key=value;
+        }else if(type==='value'){
+          state.parameters[paramIndex].value=value;
         }
         updateFinalLink();
         
-        // Update link name if pid or af_sub3 changed
-        if (type === 'key' && (value === 'pid' || value === 'af_sub3')) {
+        if(type==='key'&&(value==='pid'||value==='af_sub3')){
           generateLinkName();
-        } else if (type === 'value' && (state.parameters[paramIndex].key === 'pid' || state.parameters[paramIndex].key === 'af_sub3')) {
+        }else if(type==='value'&&(state.parameters[paramIndex].key==='pid'||state.parameters[paramIndex].key==='af_sub3')){
           generateLinkName();
         }
       }
     }
     
     // Add parameter
-    function addParameter(key, value) {
-      const param = {id: generateId(), key: key, value: value};
+    function addParameter(key,value){
+      const param={id:generateId(),key:key,value:value};
       state.parameters.push(param);
       renderParametersList();
       updateFinalLink();
     }
     
     // Confirm remove parameter
-    function confirmRemoveParameter(e) {
-      const id = e.target.dataset.id;
-      const paramIndex = state.parameters.findIndex(p => p.id === id);
+    function confirmRemoveParameter(e){
+      const id=e.target.dataset.id;
+      const paramIndex=state.parameters.findIndex(p=>p.id===id);
       
-      if (paramIndex !== -1) {
-        // Set pending removal ID and show confirmation modal
-        state.pendingRemovalId = id;
-        elements.confirmParamRemovalModal.style.display = 'flex';
+      if(paramIndex!==-1){
+        state.pendingRemovalId=id;
+        elements.confirmParamRemovalModal.style.display='flex';
       }
     }
     
     // Save link
-    function saveLink() {
-      if (!state.linkName) {
+    function saveLink(){
+      if(!state.linkName){
         showToast('Please enter a link ID');
         return;
       }
       
-      if (!state.appTrackerId) {
+      if(!state.appTrackerId){
         showToast('Please enter an App ID');
         return;
       }
       
-      // Check for OneLink specific fields
-      if (state.platform === "Appsflyer" && state.linkType === "OneLink") {
-        if (!state.subdomain) {
+      if(state.platform==="Appsflyer"&&state.linkType==="OneLink"){
+        if(!state.subdomain){
           showToast('Please enter a subdomain for OneLink');
           return;
         }
         
-        if (!state.templateId) {
+        if(!state.templateId){
           showToast('Please enter a template ID for OneLink');
           return;
         }
       }
       
-      const link = {
-        id: generateId(),
-        name: state.linkName,
-        platform: state.platform,
-        linkType: state.linkType,
-        appTrackerId: state.appTrackerId,
-        subdomain: state.subdomain || "",
-        templateId: state.templateId || "",
-        parameters: state.parameters,
-        finalLink: state.finalLink,
-        createdAt: Date.now()
+      const link={
+        id:generateId(),
+        name:state.linkName,
+        platform:state.platform,
+        linkType:state.linkType,
+        appTrackerId:state.appTrackerId,
+        subdomain:state.subdomain||"",
+        templateId:state.templateId||"",
+        parameters:state.parameters,
+        finalLink:state.finalLink,
+        createdAt:Date.now()
       };
       
       state.links.unshift(link);
-      state.linkCounter++; // Increment the link counter for next link
+      state.linkCounter++;
       saveToLocalStorage();
       renderLinksHistory();
       showToast('Link saved successfully');
       
-      // Generate a new name for the next link
       generateLinkName();
       
-      // Switch to history tab
       document.querySelector('.tab[data-tab="history"]').click();
     }
     
     // Render links history
-    function renderLinksHistory(searchTerm = '') {
-      elements.linksHistory.innerHTML = '';
+    function renderLinksHistory(searchTerm=''){
+      elements.linksHistory.innerHTML='';
       
-      const filteredLinks = searchTerm 
-        ? state.links.filter(link => link.name.toLowerCase().includes(searchTerm.toLowerCase()))
-        : state.links;
+      const filteredLinks=searchTerm 
+        ?state.links.filter(link=>link.name.toLowerCase().includes(searchTerm))
+        :state.links;
       
-      if (filteredLinks.length === 0) {
-        const emptyState = document.createElement('div');
-        emptyState.className = 'empty-state';
-        emptyState.textContent = state.links.length === 0
-          ? 'You haven\'t created any links yet. Go to the Builder tab to create your first link!'
-          : 'No links match your search query.';
+      if(filteredLinks.length===0){
+        const emptyState=document.createElement('div');
+        emptyState.className='empty-state';
+        emptyState.textContent=state.links.length===0
+          ?'You haven\'t created any links yet. Go to the Builder tab to create your first link!'
+          :'No links match your search query.';
         elements.linksHistory.appendChild(emptyState);
         return;
       }
       
-      filteredLinks.forEach(link => {
-        const historyItem = document.createElement('div');
-        historyItem.className = 'history-item';
-        historyItem.innerHTML = `
+      filteredLinks.forEach(link=>{
+        const historyItem=document.createElement('div');
+        historyItem.className='history-item';
+        historyItem.innerHTML=`
           <div class="history-header">
             <h3 class="history-title">${escapeHtml(link.name)}</h3>
             <div class="action-row">
@@ -1160,157 +758,131 @@
         elements.linksHistory.appendChild(historyItem);
       });
       
-      // Add event listeners
-      document.querySelectorAll('.copy-link').forEach(button => {
-        button.addEventListener('click', copyLink);
-      });
-      
-      document.querySelectorAll('.delete-link').forEach(button => {
-        button.addEventListener('click', deleteLink);
-      });
-      
-      document.querySelectorAll('.edit-link').forEach(button => {
-        button.addEventListener('click', editLink);
-      });
+      document.querySelectorAll('.copy-link').forEach(button=>button.addEventListener('click',copyLink));
+      document.querySelectorAll('.delete-link').forEach(button=>button.addEventListener('click',deleteLink));
+      document.querySelectorAll('.edit-link').forEach(button=>button.addEventListener('click',editLink));
     }
     
-    // Copy link to clipboard
-    async function copyLink(e) {
-      const id = e.target.dataset.id;
-      const link = state.links.find(l => l.id === id);
+    // Copy link
+    async function copyLink(e){
+      const id=e.target.dataset.id;
+      const link=state.links.find(l=>l.id===id);
       
-      if (link) {
-        try {
+      if(link){
+        try{
           await navigator.clipboard.writeText(link.finalLink);
           showToast('Link copied to clipboard');
-        } catch (error) {
-          console.error('Failed to copy:', error);
+        }catch(error){
+          console.error('Failed to copy:',error);
           showToast('Failed to copy link');
         }
       }
     }
     
     // Delete link
-    function deleteLink(e) {
-      const id = e.target.dataset.id;
-      state.links = state.links.filter(l => l.id !== id);
+    function deleteLink(e){
+      const id=e.target.dataset.id;
+      state.links=state.links.filter(l=>l.id!==id);
       saveToLocalStorage();
       renderLinksHistory(elements.searchLinks.value);
       showToast('Link deleted successfully');
     }
     
     // Edit link
-    function editLink(e) {
-      const id = e.target.dataset.id;
-      const link = state.links.find(l => l.id === id);
+    function editLink(e){
+      const id=e.target.dataset.id;
+      const link=state.links.find(l=>l.id===id);
       
-      if (link) {
-        state.platform = link.platform;
-        state.linkType = link.linkType;
-        state.appTrackerId = link.appTrackerId;
-        state.subdomain = link.subdomain || "";
-        state.templateId = link.templateId || "";
-        state.parameters = [...link.parameters];
-        state.finalLink = link.finalLink;
-        state.linkName = link.name;
+      if(link){
+        state.platform=link.platform;
+        state.linkType=link.linkType;
+        state.appTrackerId=link.appTrackerId;
+        state.subdomain=link.subdomain||"";
+        state.templateId=link.templateId||"";
+        state.parameters=[...link.parameters];
+        state.finalLink=link.finalLink;
+        state.linkName=link.name;
         
-        // Update UI
-        elements.platformButtons.forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.platform === state.platform);
-        });
+        elements.platformButtons.forEach(btn=>btn.classList.toggle('active',btn.dataset.platform===state.platform));
+        elements.linkTypeButtons.forEach(btn=>btn.classList.toggle('active',btn.dataset.type===state.linkType));
         
-        elements.linkTypeButtons.forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.type === state.linkType);
-        });
-        
-        elements.appTrackerId.value = state.appTrackerId;
-        elements.subdomain.value = state.subdomain;
-        elements.templateId.value = state.templateId;
-        elements.linkName.value = state.linkName;
+        elements.appTrackerId.value=state.appTrackerId;
+        elements.subdomain.value=state.subdomain;
+        elements.templateId.value=state.templateId;
+        elements.linkName.value=state.linkName;
         
         updateUIBasedOnPlatform();
         renderParametersList();
         updateFinalLink();
         
-        // Switch to builder tab
         document.querySelector('.tab[data-tab="builder"]').click();
       }
     }
     
     // Show toast message
-    function showToast(message, isError = false) {
-      elements.toast.textContent = message;
-      elements.toast.style.backgroundColor = isError ? 'var(--error)' : 'var(--success)';
+    function showToast(message,isError=false){
+      elements.toast.textContent=message;
+      elements.toast.style.backgroundColor=isError?'var(--error)':'var(--success)';
       elements.toast.classList.add('show');
-      setTimeout(() => { elements.toast.classList.remove('show'); }, 3000);
+      setTimeout(()=>{elements.toast.classList.remove('show');},3000);
     }
     
     // Toggle theme
-    function toggleTheme() {
-      const newTheme = state.theme === 'light' ? 'dark' : 'light';
+    function toggleTheme(){
+      const newTheme=state.theme==='light'?'dark':'light';
       setTheme(newTheme);
-      state.theme = newTheme;
+      state.theme=newTheme;
       saveToLocalStorage();
     }
     
     // Set theme
-    function setTheme(theme) {
-      if (theme === 'dark') {
+    function setTheme(theme){
+      if(theme==='dark'){
         document.body.classList.add('dark-mode');
-        elements.themeToggle.textContent = '☀️';
-      } else {
+        elements.themeToggle.textContent='☀️';
+      }else{
         document.body.classList.remove('dark-mode');
-        elements.themeToggle.textContent = '🌙';
+        elements.themeToggle.textContent='🌙';
       }
     }
     
     // Save to localStorage
-    function saveToLocalStorage() {
-      const data = {
-        links: state.links,
-        theme: state.theme,
-        linkCounter: state.linkCounter
-      };
-      localStorage.setItem('linkGenie', JSON.stringify(data));
+    function saveToLocalStorage(){
+      const data={links:state.links,theme:state.theme,linkCounter:state.linkCounter};
+      localStorage.setItem('linkGenie',JSON.stringify(data));
     }
     
     // Load from localStorage
-    function loadFromLocalStorage() {
-      const data = localStorage.getItem('linkGenie');
-      if (data) {
-        const parsed = JSON.parse(data);
-        state.links = parsed.links || [];
-        state.theme = parsed.theme || 'light';
-        state.linkCounter = parsed.linkCounter || 1;
+    function loadFromLocalStorage(){
+      const data=localStorage.getItem('linkGenie');
+      if(data){
+        const parsed=JSON.parse(data);
+        state.links=parsed.links||[];
+        state.theme=parsed.theme||'light';
+        state.linkCounter=parsed.linkCounter||1;
       }
     }
     
     // Initialize Sortable for parameters list
-    function initSortable() {
-      const parametersList = document.getElementById('parametersList');
-      if (parametersList) {
-        new Sortable(parametersList, {
-          animation: 150,
-          handle: '.drag-handle',
-          ghostClass: 'sortable-ghost',
-          chosenClass: 'sortable-chosen',
-          onEnd: function(evt) {
-            // Update parameters order when drag ends
-            const reorderedParameters = [];
-            const items = parametersList.querySelectorAll('.parameter-item');
+    function initSortable(){
+      const parametersList=document.getElementById('parametersList');
+      if(parametersList){
+        new Sortable(parametersList,{
+          animation:150,
+          handle:'.drag-handle',
+          ghostClass:'sortable-ghost',
+          chosenClass:'sortable-chosen',
+          onEnd:function(evt){
+            const reorderedParameters=[];
+            const items=parametersList.querySelectorAll('.parameter-item');
             
-            items.forEach(item => {
-              const id = item.dataset.id;
-              const param = state.parameters.find(p => p.id === id);
-              if (param) {
-                reorderedParameters.push(param);
-              }
+            items.forEach(item=>{
+              const id=item.dataset.id;
+              const param=state.parameters.find(p=>p.id===id);
+              if(param)reorderedParameters.push(param);
             });
             
-            // Update state with reordered parameters
-            state.parameters = reorderedParameters;
-            
-            // Update the final link with the new parameter order
+            state.parameters=reorderedParameters;
             updateFinalLink();
             showToast('Parameter order updated');
           }
@@ -1318,38 +890,27 @@
       }
     }
     
-    // Helper: Generate ID
-    function generateId() { return Math.random().toString(36).substring(2, 15); }
-    
-    // Helper: Format date
-    function formatDate(timestamp) { return new Date(timestamp).toLocaleString(); }
-    
-    // Helper: Escape HTML
-    function escapeHtml(unsafe) {
-      return unsafe
-        .toString()
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    // Helper functions
+    function generateId(){return Math.random().toString(36).substring(2,15);}
+    function formatDate(timestamp){return new Date(timestamp).toLocaleString();}
+    function escapeHtml(unsafe){
+      return unsafe.toString()
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
     }
-    
-    // Helper: Debounce function
-    function debounce(func, wait) {
+    function debounce(func,wait){
       let timeout;
-      return function executedFunction(...args) {
-        const later = () => {
-          clearTimeout(timeout);
-          func(...args);
-        };
+      return function(...args){
         clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
+        timeout=setTimeout(()=>func(...args),wait);
       };
     }
     
-    // Initialize the app
-    document.addEventListener('DOMContentLoaded', init);
+    // Initialize app
+    document.addEventListener('DOMContentLoaded',init);
   </script>
 </body>
 </html>
